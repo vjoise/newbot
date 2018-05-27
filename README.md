@@ -25,8 +25,8 @@ graph TB
 graph TB
     Developer[Dev Group] -- Posts message --> B((Chatbot))
     B((Chatbot)) -- Creates action items --> App[App Service]
-    App[App Service] -- Notifies users --> E((End Users))
-    E((End Users)) -- Signoff message --> B((Chatbot))
+    App((App Service)) -- Notifies users --> E[End Users]
+    E[End Users] -- Signoff message --> B((Chatbot))
 ```
 
 ```mermaid
@@ -42,7 +42,7 @@ ChatBot Engine & Audit Agent
 ======
 1. Chatbot engine accepts user commands.
 2. Chatbot agent intercepts all the incoming HTTP api calls and posts it to the Audit service.
-3. The in-app bot would help in notifying the users about the ongoing activities during the release process.
+3. The _InApp_ bot would help in notifying the users about the ongoing activities during the release process.
 
 
 When the member from `Developer` community posts a message with `Jira Items` mentioning users in the room it also creates `action items` for those `users` on those JIRA items.

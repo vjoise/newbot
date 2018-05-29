@@ -1,6 +1,6 @@
 ## StampBOT - Audit Tracker BOT
 
-### Introduction
+### About
 
 In an agile scenario, Release Management is a pain where multiple parties are involved including Dev, BAs and End-Users.<br/> 
 Here is a small illustration of the events which take place on usual iteration/sprint.

@@ -42,3 +42,17 @@ graph TB
 2. Audit API    - To log & query the incoming data to a persistent store
 3. Lang API     - API to support NLP semantics and conversation 
 4. Service API  - Listener & Responder for incoming chats to the bot.
+
+ 
+```mermaid
+graph LR
+    Client --> Service[Service API]
+    Service -- Logs + queries --> Lang[Lang API]
+    Lang    -- User Intent --> Service
+    Service -- Logs --> Audit[Audit API]
+    Service -- Update conversation state --> Workflow[Workflow API]
+    Workflow -- Next state --> Service
+    Service --> Client
+```
+
+

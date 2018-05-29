@@ -37,14 +37,8 @@ graph TB
  end
 ```
 
-***
-ChatBot Engine & Audit Agent
-======
-1. Chatbot engine accepts user commands.
-2. Chatbot agent intercepts all the incoming HTTP api calls and posts it to the Audit service.
-3. The _InApp_ bot would help in notifying the users about the ongoing activities during the release process.
-
-
-When the member from `Developer` community posts a message with `Jira Items` mentioning users in the room it also creates `action items` for those `users` on those JIRA items.
-
-
+### Main Components
+1. Workflow API - To track user conversation states [Answered, Unanswered, Error, In progress] allowing it to locate users based on their streamId.
+2. Audit API    - To log & query the incoming data to a persistent store
+3. Lang API     - API to support NLP semantics and conversation 
+4. Service API  - Listener & Responder for incoming chats to the bot.

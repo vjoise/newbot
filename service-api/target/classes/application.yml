@@ -1,7 +1,0 @@
-sessionAuthURL: https://develop2-api.symphony.com:8444/sessionauth
-keyAuthUrl: https://develop2-api.symphony.com:8444/keyauth
-botCertPath: C:/Users/deprasa/Desktop/hackathon/cert_key.p12
-botCertPassword: changeit
-botEmailAddress: bot.user31
-agentAPIEndpoint: https://develop2.symphony.com/agent
-podAPIEndpoint: https://develop2.symphony.com/pod

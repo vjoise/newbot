@@ -6,4 +6,5 @@ public interface TaskServiceProvider {
 
     List<String> validateIds(List<String> ids) throws Exception;
 
+    void createSubTask(String parentJiraId) throws Exception;
 }

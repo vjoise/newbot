@@ -3,23 +3,36 @@ package com.stampbot.service.task.provider;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
 class JiraTaskServiceProvider implements TaskServiceProvider {
 
+    private final PropertiesClient propertiesClient;
+    private final JiraOAuthClient jiraOAuthClient;
+
+    public JiraTaskServiceProvider() throws Exception {
+        propertiesClient = new PropertiesClient();
+        jiraOAuthClient = new JiraOAuthClient(propertiesClient);
+    }
+
     @Override
-    public List<String> validateIds(List<String> ids) throws Exception {
-        PropertiesClient propertiesClient = new PropertiesClient();
-        JiraOAuthClient jiraOAuthClient = new JiraOAuthClient(propertiesClient);
-        ids.parallelStream().forEach( jiraId -> {
-            try{
+    public List<String> validateIds(List<String> ids) {
+        ids.parallelStream().forEach(jiraId -> {
+            try {
                 new OAuthClient(propertiesClient, jiraOAuthClient).execute(Command.fromString("request"), Lists.newArrayList(jiraId));
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         return ids;
+    }
+
+    @Override
+    public void createSubTask(String parentJiraId) {
+        new OAuthClient(propertiesClient, jiraOAuthClient)
+                .execute(Command.CREATE_SUB_TASK, Collections.singletonList(parentJiraId));
     }
 
 }

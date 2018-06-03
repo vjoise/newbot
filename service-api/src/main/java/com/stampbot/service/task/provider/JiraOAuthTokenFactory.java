@@ -20,15 +20,6 @@ public class JiraOAuthTokenFactory {
     @Value("${jira.url.requestTokenUrl}")
     private String requestTokenUrl;
 
-    public JiraOAuthTokenFactory() {
-    }
-
-    public JiraOAuthTokenFactory(String jiraBaseUrl) {
-        this.accessTokenUrl = jiraBaseUrl + "/plugins/servlet/oauth/access-token";
-        ;
-        requestTokenUrl = jiraBaseUrl + "/plugins/servlet/oauth/request-token";
-    }
-
     /**
      * Initialize JiraOAuthGetAccessToken
      * by setting it to use POST method, secret, request token

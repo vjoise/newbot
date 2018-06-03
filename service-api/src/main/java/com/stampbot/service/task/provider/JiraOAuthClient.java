@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import static com.stampbot.service.task.provider.PropertiesClient.JIRA_HOME;
-
 
 @Component
 public class JiraOAuthClient {
@@ -22,15 +20,6 @@ public class JiraOAuthClient {
 
     @Autowired
     JiraOAuthTokenFactory jiraOAuthTokenFactory;
-
-    public final String jiraBaseUrl;
-    private final JiraOAuthTokenFactory oAuthGetAccessTokenFactory;
-
-    public JiraOAuthClient(PropertiesClient propertiesClient) throws Exception {
-        jiraBaseUrl = propertiesClient.getPropertiesOrDefaults().get(JIRA_HOME);
-        this.oAuthGetAccessTokenFactory = new JiraOAuthTokenFactory(this.jiraBaseUrl);
-        authorizationUrl = jiraBaseUrl + "/plugins/servlet/oauth/authorize";
-    }
 
     /**
      * Gets temporary request token and creates url to authorize it

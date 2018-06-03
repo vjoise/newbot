@@ -2,6 +2,7 @@ package com.stampbot.service.symphony;
 
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserInputWord;
+import com.stampbot.model.IssueResponse;
 import com.stampbot.service.nlp.MessageParser;
 import com.stampbot.service.task.TaskService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.events.SymEvent;
+import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.symphony.clients.DataFeedClient;
 import org.symphonyoss.symphony.clients.StreamsClient;
@@ -75,31 +78,10 @@ public class DataFeedProcessor {
                 });
             }
 
-            if (toCreateSubTask(userInput)) {
-                String parentJiraToStartTesting = startTestingForJira(userInput);
-                try {
-                    String newJira = taskService.createSubTask(parentJiraToStartTesting);
-                    if (newJira != null) {
-                        Chat chat = new Chat();
-                        SymMessage aMessage = new SymMessage();
-                        aMessage.setMessageText("Testing Sub-Task " + newJira + " created for " + parentJiraToStartTesting + ".");
-                        chat.setLastMessage(aMessage);
-                        StreamsClient streamsClient = symphonyClient.getStreamsClient();
-                        chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
-                        symphonyClient.getMessageService().sendMessage(chat, aMessage);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            createSubTask(symEvent, userInput);
+
             try {
-                Chat chat = new Chat();
-                SymMessage aMessage = new SymMessage();
-                aMessage.setMessageText("Echo Response :: " + messageText);
-                chat.setLastMessage(aMessage);
-                StreamsClient streamsClient = symphonyClient.getStreamsClient();
-                chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
-                symphonyClient.getMessageService().sendMessage(chat, aMessage);
+                replyMessage(symEvent, "Echo Response :: " + messageText);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,20 +89,49 @@ public class DataFeedProcessor {
         });
     }
 
-    private boolean toCreateSubTask(UserInput userInput) {
-        String parentJiraToStartTesting = startTestingForJira(userInput);
+    private void createSubTask(SymEvent symEvent, UserInput userInput) {
+        if (toCreateSubTask(userInput)) {
+            String parentJiraKey = startTestingForJira(userInput);
+            try {
+                IssueResponse issueResponse = taskService.createSubTask(parentJiraKey);
+                if (issueResponse != null && issueResponse.getKey() != null) {
+                    replyMessage(symEvent, "Testing Sub-Task " + issueResponse.getKey() + " created for " + parentJiraKey + ".");
+                } else {
+                    throw new Exception("Invalid Response");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    replyMessage(symEvent, "Sub-Task could not be created for " + parentJiraKey + ": " + e.getMessage());
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
 
-        return !parentJiraToStartTesting.equals("");
+    private void replyMessage(SymEvent symEvent, String messageText) throws StreamsException, MessagesException {
+        Chat chat = new Chat();
+        SymMessage aMessage = new SymMessage();
+        aMessage.setMessageText(messageText);
+        chat.setLastMessage(aMessage);
+        StreamsClient streamsClient = symphonyClient.getStreamsClient();
+        chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
+        symphonyClient.getMessageService().sendMessage(chat, aMessage);
+    }
+
+    private boolean toCreateSubTask(UserInput userInput) {
+        return !startTestingForJira(userInput).equals("");
     }
 
     private String startTestingForJira(UserInput userInput) {
         if (userInput.getInputSentence().contains("test") && userInput.getInputSentence().contains("-")) {
-            Optional<UserInputWord> jiraUserInputWord = userInput.getWords()
+            Optional<UserInputWord> jiraKey = userInput.getWords()
                     .stream()
                     .filter(userInputWord -> userInputWord.getWord().matches("((([a-zA-Z]{1,10})-)*[a-zA-Z]+-\\d+)"))
                     .findFirst();
-            if (jiraUserInputWord.isPresent()) {
-                return jiraUserInputWord.get().getWord();
+            if (jiraKey.isPresent()) {
+                return jiraKey.get().getWord();
             } else {
                 return "";
             }

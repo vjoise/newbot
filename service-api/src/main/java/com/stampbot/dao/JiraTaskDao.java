@@ -2,7 +2,9 @@ package com.stampbot.dao;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.http.*;
+import com.google.api.client.http.ByteArrayContent;
+import com.google.api.client.http.HttpResponse;
+import com.stampbot.common.HttpUtils;
 import com.stampbot.model.CreateIssueDto;
 import com.stampbot.model.IssueResponse;
 import com.stampbot.model.createIssueModel.Parent;
@@ -17,7 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.stampbot.common.HttpUtils.parseResponse;
 
 @Repository
 public class JiraTaskDao {
@@ -30,15 +35,29 @@ public class JiraTaskDao {
     private String createMetaUrl;
     @Value("${jira.url.createIssue}")
     private String createIssueUrl;
-
     @Value("${jira.url.getIssue}")
     private String getIssueUrl;
+
     @Autowired
     JiraOAuthClient jiraOAuthClient;
 
     @Autowired
-    HttpRequestFactory httpRequestFactory;
+    HttpUtils httpUtils;
 
+    public List<String> validateIds(List<String> input) {
+        return input.stream()
+                .map(word -> {
+                    try {
+                        IssueResponse response = getIssueResponse(word);
+                        return response != null ? response.getKey() : "";
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return "";
+                    }
+                })
+                .filter(word -> !word.equals(""))
+                .collect(Collectors.toList());
+    }
 
     public IssueResponse createSubTask(String jiraIssueKey) {
         String projectId = null;
@@ -62,7 +81,7 @@ public class JiraTaskDao {
         String requestBody = om.writeValueAsString(createIssueRequestBody);
         System.out.println(requestBody);
 
-        HttpResponse createIssueHttpResponse = postResponseFromUrl(createIssueUrl,
+        HttpResponse createIssueHttpResponse = httpUtils.postResponseFromUrl(createIssueUrl,
                 ByteArrayContent.fromString("application/json", requestBody));
         JSONObject issueJsonResponse = parseResponse(createIssueHttpResponse);
 
@@ -70,17 +89,20 @@ public class JiraTaskDao {
     }
 
     private String getProjectIdFromIssue(String jiraIssueKey) throws IOException {
-        HttpResponse issueResponse = getResponseFromUrl(getIssueUrl + jiraIssueKey.toUpperCase());
-        JSONObject issueJson = parseResponse(issueResponse);
-        ObjectMapper om = new ObjectMapper();
-        IssueResponse response = om.readValue(issueJson.toString(2), IssueResponse.class);
+        IssueResponse response = getIssueResponse(jiraIssueKey);
 
         return response.getFields().getProject().getId();
     }
 
+    private IssueResponse getIssueResponse(String jiraIssueKey) throws IOException {
+        HttpResponse issueResponse = httpUtils.getResponseFromUrl(getIssueUrl + jiraIssueKey);
+        JSONObject issueJson = parseResponse(issueResponse);
+        ObjectMapper om = new ObjectMapper();
+        return om.readValue(issueJson.toString(2), IssueResponse.class);
+    }
 
     private String getSubTaskIdFromMeta(String projectId) throws IOException {
-        HttpResponse metaResponse = getResponseFromUrl(createMetaUrl);
+        HttpResponse metaResponse = httpUtils.getResponseFromUrl(createMetaUrl);
         JSONObject metaJson = parseResponse(metaResponse);
         ObjectMapper om = new ObjectMapper();
         ProjectMetaData meta = om.readValue(metaJson.toString(2), ProjectMetaData.class);
@@ -113,31 +135,5 @@ public class JiraTaskDao {
             System.out.println(e.getMessage());
         }
         return null;
-    }
-
-//    helper
-    private JSONObject parseResponse(HttpResponse response) throws IOException {
-        Scanner s = new Scanner(response.getContent()).useDelimiter("\\A");
-        String result = s.hasNext() ? s.next() : "";
-
-        try {
-            JSONObject jsonObj = new JSONObject(result);
-            System.out.println(jsonObj.toString(2));
-            return jsonObj;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return new JSONObject();
-    }
-
-    private HttpResponse postResponseFromUrl(String url,HttpContent content) throws IOException {
-        HttpRequest request = httpRequestFactory.buildPostRequest(new GenericUrl(url), content);
-        request.getHeaders().setContentType("application/json");
-        return request.execute();
-    }
-
-    private HttpResponse getResponseFromUrl(String url) throws IOException {
-        HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(url));
-        return request.execute();
     }
 }

@@ -79,29 +79,31 @@ public class DataFeedProcessor {
                 String parentJiraToStartTesting = startTestingForJira(userInput);
                 try {
                     String newJira = taskService.createSubTask(parentJiraToStartTesting);
-                    Chat chat = new Chat();
-                    SymMessage aMessage = new SymMessage();
-                    aMessage.setMessageText("Testing Sub-Task " + newJira + " created for " + parentJiraToStartTesting + ".");
-                    chat.setLastMessage(aMessage);
-                    StreamsClient streamsClient = symphonyClient.getStreamsClient();
-                    chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
-                    symphonyClient.getMessageService().sendMessage(chat, aMessage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    Chat chat = new Chat();
-                    SymMessage aMessage = new SymMessage();
-                    aMessage.setMessageText("Echo Response :: " + messageText);
-                    chat.setLastMessage(aMessage);
-                    StreamsClient streamsClient = symphonyClient.getStreamsClient();
-                    chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
-                    symphonyClient.getMessageService().sendMessage(chat, aMessage);
+                    if (newJira != null) {
+                        Chat chat = new Chat();
+                        SymMessage aMessage = new SymMessage();
+                        aMessage.setMessageText("Testing Sub-Task " + newJira + " created for " + parentJiraToStartTesting + ".");
+                        chat.setLastMessage(aMessage);
+                        StreamsClient streamsClient = symphonyClient.getStreamsClient();
+                        chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
+                        symphonyClient.getMessageService().sendMessage(chat, aMessage);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            try {
+                Chat chat = new Chat();
+                SymMessage aMessage = new SymMessage();
+                aMessage.setMessageText("Echo Response :: " + messageText);
+                chat.setLastMessage(aMessage);
+                StreamsClient streamsClient = symphonyClient.getStreamsClient();
+                chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
+                symphonyClient.getMessageService().sendMessage(chat, aMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         });
     }
 

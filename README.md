@@ -19,7 +19,7 @@ graph TB
 * No single point of tracking mechanism.
 * Need to dig through the email to figure out whole process.
 
-### Solution workflow
+### Solution workflowEntity
 
 ```mermaid
 graph TB

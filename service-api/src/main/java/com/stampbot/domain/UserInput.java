@@ -1,6 +1,7 @@
 package com.stampbot.domain;
 
-import com.google.common.collect.Lists;
+import edu.stanford.nlp.ie.util.RelationTriple;
+import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -14,9 +15,15 @@ public class UserInput {
 
     private String inputSentence;
 
+    private String userId;
+
     private List<UserInputWord> words = Lists.newArrayList();
 
     private boolean negativeSentiment = true;
+
+    private RelationTriple relationTriple;
+
+    private String actionHandlerClass;
 
     public UserInput() {
 

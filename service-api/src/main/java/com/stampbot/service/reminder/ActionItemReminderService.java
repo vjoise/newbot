@@ -17,6 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.stampbot.common.Utils.trySafe;
+
 /* If there is no response from the user, a reminder is sent out to that user.*/
 @Component
 public class ActionItemReminderService {
@@ -36,19 +38,17 @@ public class ActionItemReminderService {
 		entities.forEach(entity -> {
 			executorService.schedule(() -> {
 				boolean actionPending = actionItemService.isActionPending(entity.getId());
-				if(actionPending){
+				if (actionPending) {
 					Chat chat = new Chat();
 					SymMessage aMessage = new SymMessage();
 					chat.setLastMessage(aMessage);
 					StreamsClient streamsClient = symphonyClient.getStreamsClient();
 					UserIdList userIdList = new UserIdList();
 					userIdList.add(entity.getUserId());
-					try {
+					trySafe(() -> {
 						chat.setStream(streamsClient.getStream(userIdList));
 						symphonyClient.getMessageService().sendMessage(chat, aMessage);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					}, true);
 				}
 			}, Long.parseLong(config.getTaskReminderInterval()), TimeUnit.SECONDS);
 		});

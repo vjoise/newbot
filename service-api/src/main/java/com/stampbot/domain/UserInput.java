@@ -25,6 +25,10 @@ public class UserInput {
 
     private String actionHandlerClass;
 
+    private String detectedWorkflow;
+
+    private String conversationId;
+
     public UserInput() {
 
     }

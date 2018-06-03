@@ -1,4 +1,4 @@
-package com.stampbot.service.symphony;
+package com.stampbot.service.nlp.classifier;
 
 public enum ClassifierResponseType {
 

@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
 public class WorkflowQuestionEntity extends UniqueTimeStamEntity {
 
 	@Column
@@ -28,5 +27,12 @@ public class WorkflowQuestionEntity extends UniqueTimeStamEntity {
 	@OneToOne(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private WorkflowAnswerEntity answer;
 
+	@Column
+	private String actionHandler;
 
+	@Column
+	private String inputValidator;
+
+	public WorkflowQuestionEntity() {
+	}
 }

@@ -29,11 +29,4 @@ class JiraTaskServiceProvider implements TaskServiceProvider {
         return ids;
     }
 
-    @Override
-    public String createSubTask(String parentJiraId) {
-        OAuthClient oAuthClient = new OAuthClient(propertiesClient, jiraOAuthClient);
-        oAuthClient.execute(Command.CREATE_SUB_TASK, Collections.singletonList(parentJiraId));
-        return oAuthClient.getResponse();
-    }
-
 }

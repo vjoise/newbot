@@ -4,6 +4,7 @@ package com.stampbot.service.task.provider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
+@Component
 public class PropertiesClient {
     public static final String CONSUMER_KEY = "consumer_key";
     public static final String PRIVATE_KEY = "private_key";

@@ -52,7 +52,6 @@ public class OAuthClient {
                 .put(Command.REQUEST_TOKEN, this::handleGetRequestTokenAction)
                 .put(Command.ACCESS_TOKEN, this::handleGetAccessToken)
                 .put(Command.REQUEST, this::handleGetRequest)
-                .put(Command.CREATE_SUB_TASK, this::handleCreateSubTask)
                 .build();
     }
 
@@ -141,95 +140,6 @@ public class OAuthClient {
         } catch (Exception e) {
             return Optional.of(e);
         }
-    }
-
-    private Optional<Exception> handleCreateSubTask(List<String> arguments) {
-        Map<String, String> properties = propertiesClient.getPropertiesOrDefaults();
-        String tmpToken = properties.get(ACCESS_TOKEN);
-        String secret = properties.get(SECRET);
-        String metaUrl = properties.get(JIRA_HOME) + metaApi;
-        String getIssueUrl = properties.get(JIRA_HOME) + getIssueApi;
-        String newIssueUrl = properties.get(JIRA_HOME) + newIssueApi;
-        propertiesClient.savePropertiesToFile(properties);
-
-        try {
-            OAuthParameters parameters = jiraOAuthClient.getParameters(tmpToken, secret, properties.get(CONSUMER_KEY), properties.get(PRIVATE_KEY));
-            String parentJiraId = arguments.get(0);
-            IssueResponse createSubTaskResponse = createSubTask(metaUrl, getIssueUrl, newIssueUrl, parameters, parentJiraId);
-            if (createSubTaskResponse.getKey() != null) {
-                System.out.println("Testing Sub-Task " + createSubTaskResponse.getKey() + " created on " + parentJiraId);
-                this.setResponse(createSubTaskResponse.getKey());
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            return Optional.of(e);
-        }
-    }
-
-    private IssueResponse createSubTask(String metaUrl, String getIssueUrl, String newIssueUrl, OAuthParameters parameters, String jiraIssueKey) throws IOException {
-        String projectId = getProjectIdFromIssue(parameters, getIssueUrl + "AUD-15", jiraIssueKey);
-
-        String subTaskId = getSubTaskIdFromMeta(parameters, metaUrl, projectId);
-
-        return createSubTaskResponse(parameters, newIssueUrl, jiraIssueKey, projectId, subTaskId);
-    }
-
-    private IssueResponse createSubTaskResponse(OAuthParameters parameters, String newIssueUrl, String jiraIssueKey, String projectId, String subTaskId) throws IOException {
-        CreateIssueDto createIssueRequestBody = createSubTaskRequestBody(subTaskId, "Testing", projectId, jiraIssueKey);
-        ObjectMapper om = new ObjectMapper();
-        String requestBody = om.writeValueAsString(createIssueRequestBody);
-        System.out.println(requestBody);
-
-        HttpResponse createIssueHttpResponse = postResponseFromUrl(parameters, new GenericUrl(newIssueUrl),
-                ByteArrayContent.fromString("application/json", requestBody));
-        JSONObject issueJsonResponse = parseResponse(createIssueHttpResponse);
-
-        return om.readValue(issueJsonResponse.toString(2), IssueResponse.class);
-    }
-
-    private String getProjectIdFromIssue(OAuthParameters parameters, String getIssueUrl, String jiraIssueKey) throws IOException {
-        HttpResponse issueResponse = getResponseFromUrl(parameters, new GenericUrl(getIssueUrl));
-        JSONObject issueJson = parseResponse(issueResponse);
-        ObjectMapper om = new ObjectMapper();
-        IssueResponse response = om.readValue(issueJson.toString(2), IssueResponse.class);
-
-        return response.getFields().getProject().getId();
-    }
-
-    private String getSubTaskIdFromMeta(OAuthParameters parameters, String metaUrl, String projectId) throws IOException {
-        HttpResponse metaResponse = getResponseFromUrl(parameters, new GenericUrl(metaUrl));
-        JSONObject metaJson = parseResponse(metaResponse);
-        ObjectMapper om = new ObjectMapper();
-        ProjectMetaData meta = om.readValue(metaJson.toString(2), ProjectMetaData.class);
-        Project theProject = meta.getProjects().stream().filter(project -> project.getId().equals(projectId)).findFirst().get();
-        return theProject.getIssuetypes().stream().filter(issuetype -> issuetype.isSubtask()).findFirst().get().getId();
-    }
-
-    private CreateIssueDto createSubTaskRequestBody(String subTaskId, String subTaskSummary, String projectId, String parentJiraKey) {
-        try {
-            Project project = new Project();
-            project.setId(projectId);
-
-            Issuetype issuetype = new Issuetype();
-            issuetype.setId(subTaskId);
-
-            Parent parent = new Parent();
-            parent.setKey(parentJiraKey);
-
-            Fields field = new Fields();
-            field.setSummary(subTaskSummary);
-            field.setProject(project);
-            field.setIssuetype(issuetype);
-            field.setParent(parent);
-
-            CreateIssueDto createIssueDto = new CreateIssueDto();
-            createIssueDto.setFields(field);
-
-            return createIssueDto;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
     }
 
     /**

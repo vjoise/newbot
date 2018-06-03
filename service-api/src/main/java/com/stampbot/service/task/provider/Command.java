@@ -6,8 +6,7 @@ import java.util.stream.Collectors;
 public enum Command {
     REQUEST_TOKEN("requestToken"),
     ACCESS_TOKEN("accessToken"),
-    REQUEST("request"),
-    CREATE_SUB_TASK("createSubTask");
+    REQUEST("request");
 
     private final String name;
 

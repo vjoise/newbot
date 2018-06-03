@@ -3,6 +3,8 @@ package com.stampbot.service.task.provider;
 import com.google.api.client.auth.oauth.OAuthRsaSigner;
 import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -10,10 +12,16 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 
+@Component
 public class JiraOAuthTokenFactory {
-    protected final String accessTokenUrl;
-    protected final String requestTokenUrl;
 
+    @Value("${jira.url.accessTokenUrl}")
+    private String accessTokenUrl;
+    @Value("${jira.url.requestTokenUrl}")
+    private String requestTokenUrl;
+
+    public JiraOAuthTokenFactory() {
+    }
 
     public JiraOAuthTokenFactory(String jiraBaseUrl) {
         this.accessTokenUrl = jiraBaseUrl + "/plugins/servlet/oauth/access-token";

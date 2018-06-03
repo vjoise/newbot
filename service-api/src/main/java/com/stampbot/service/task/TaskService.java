@@ -16,4 +16,8 @@ public class TaskService {
         return provider.validateIds(input);
     }
 
+    public String createSubTask(String parentJira) throws Exception {
+        return provider.createSubTask(parentJira);
+    }
+
 }

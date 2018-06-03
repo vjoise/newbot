@@ -34,6 +34,16 @@ public class OAuthClient {
     private final String newIssueApi = "rest/api/2/issue";
     private final String getIssueApi = "rest/api/latest/issue/";
 
+    private String response;
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
     public OAuthClient(PropertiesClient propertiesClient, JiraOAuthClient jiraOAuthClient) {
         this.propertiesClient = propertiesClient;
         this.jiraOAuthClient = jiraOAuthClient;
@@ -148,6 +158,7 @@ public class OAuthClient {
             IssueResponse createSubTaskResponse = createSubTask(metaUrl, getIssueUrl, newIssueUrl, parameters, parentJiraId);
             if (createSubTaskResponse.getKey() != null) {
                 System.out.println("Testing Sub-Task " + createSubTaskResponse.getKey() + " created on " + parentJiraId);
+                this.setResponse(createSubTaskResponse.getKey());
             }
             return Optional.empty();
         } catch (Exception e) {

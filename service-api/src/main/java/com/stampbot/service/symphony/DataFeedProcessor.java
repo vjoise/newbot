@@ -87,16 +87,14 @@ public class DataFeedProcessor {
                 trySafe(() -> {
                     List<String> strings = taskService.validateIds(ids);
                     log.info("Valid ones :: " + strings);
-                });
+                }, true);
             }
 
             createSubTask(symEvent, userInput);
 
-            try {
+			trySafe(() -> {
                 replyMessage(symEvent, "Echo Response :: " + messageText);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            }, true);
 
         });
     }
@@ -113,11 +111,9 @@ public class DataFeedProcessor {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                try {
+				trySafe(() -> {
                     replyMessage(symEvent, "Sub-Task could not be created for " + parentJiraKey + ": " + e.getMessage());
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
+                }, true);
             }
         }
     }

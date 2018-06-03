@@ -1,11 +1,29 @@
+spring:
+  hibernate:
+    jpa:
+      ddl-auto : create
+server:
+  port: 8082
+
+#########################################################
+############# SYMPHONY CONFIG ###########################
+#########################################################
 sessionAuthURL: https://develop2-api.symphony.com:8444/sessionauth
 keyAuthUrl: https://develop2-api.symphony.com:8444/keyauth
-botCertPath: C:/Users/iris_/Downloads/new-bot/cert_key.p12
+botCertPath: cert_key.p12
 botCertPassword: changeit
 botEmailAddress: bot.user31
 agentAPIEndpoint: https://develop2.symphony.com/agent
 podAPIEndpoint: https://develop2.symphony.com/pod
-#
+
+#########################################################
+############# ACTION ITEM TRIGGER CONFIG ################
+#########################################################
+taskReminderInterval: 24
+
+#########################################################
+################## JIRA CONFIG ##########################
+#########################################################
 jira:
   oauth :
     consumerKey: OauthKey
@@ -21,5 +39,3 @@ jira:
     createMeta: ${jira.url.home}/rest/api/2/issue/createmeta
     createIssue: ${jira.url.home}/rest/api/2/issue
     getIssue: ${jira.url.home}/rest/api/latest/issue/
-server:
-  port: 8082

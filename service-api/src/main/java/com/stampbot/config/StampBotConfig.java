@@ -40,6 +40,6 @@ public class StampBotConfig {
     private String podAPIEndpoint;
 
     @NotNull
-    private Long taskReminderInterval;
+    private String taskReminderInterval;
 
 }

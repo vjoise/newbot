@@ -50,7 +50,7 @@ public class ActionItemReminderService {
 						e.printStackTrace();
 					}
 				}
-			}, config.getTaskReminderInterval(), TimeUnit.SECONDS);
+			}, Long.parseLong(config.getTaskReminderInterval()), TimeUnit.SECONDS);
 		});
 
 	}

@@ -4,6 +4,7 @@ import com.stampbot.config.StampBotConfig;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.SymphonyClientFactory;
@@ -34,7 +35,7 @@ public class SymphonyService {
 
     private void init() throws Exception {
         KeyStore cks = KeyStore.getInstance("pkcs12");
-        loadKeyStore(cks, config.getBotCertPath(), config.getBotCertPassword());
+        loadKeyStore(cks, new ClassPathResource("cert_key.p12").getInputStream(), config.getBotCertPassword());
         SSLContext sslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(cks, config.getBotCertPassword().toCharArray())
                 .loadTrustMaterial(null, (a, b) -> true)
@@ -49,18 +50,6 @@ public class SymphonyService {
                 config.getAgentAPIEndpoint(),
                 config.getPodAPIEndpoint()
         );
-    }
-
-    private static void loadKeyStore(KeyStore ks, String ksFile, String ksPass) throws Exception {
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(ksFile);
-            loadKeyStore(ks, fis, ksPass);
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-        }
     }
 
     private static void loadKeyStore(KeyStore ks, InputStream ksInputStream, String ksPass) throws Exception {

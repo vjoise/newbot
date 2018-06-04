@@ -1,4 +1,4 @@
-## StampBOT - Audit Tracker BOT
+## Release KAKI - A release/signonff Audit Tracker BOT
 
 ### About
 

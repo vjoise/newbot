@@ -107,31 +107,8 @@ public class DataFeedProcessor {
 		});
 	}
 
-	private void logWorkflowRecords(SymEvent symEvent, UserInput userInput) {
-		List<UserWorkflowLog> logs = userWorkflowStore.findByConversationId(symEvent.getPayload().getMessageSent().getStreamId());
-		final Map<Long, UserWorkflowLog> workflowLogMap = Maps.newHashMap();
-		logs.forEach(log -> workflowLogMap.put(log.getId(), log));
-		WorkflowQuestionEntity questionEntity = userInput.getQuestionEntity();
-		if (questionEntity == null || questionEntity.getWorkflowEntity() == null) {
-			return;
-		}
-		List<WorkflowQuestionEntity> questions = questionEntity.getWorkflowEntity().getQuestions();
-		questions.forEach(question -> {
-			workflowLogMap.forEach((userId, workflowLog) -> {
-				if (question.getId().equals(workflowLog.getQuestionId())) {
-					UserWorkflowLog log = userWorkflowStore.findById(workflowLog.getId());
-					log.setPassed(true);
-				}
-			});
-		});
-	}
-
 	private void processUserInput(SymEvent symEvent, ClassifierResponse classifiedResponse, UserInput userInput, String[] botResponse) {
 		if (classifiedResponse.getResponseType() == ClassifierResponseType.WORKFLOW) {
-			boolean freshUser = userWorkflowStore.isEmpty(userInput);
-			if (freshUser) {
-				logWorkflowRecords(symEvent, userInput);
-			}
 			HashMap<String, Object> workflowContext = triggerWorkflow(symEvent, classifiedResponse, userInput);
 			botResponse[0] = String.class.cast(workflowContext.get("botResponse"));
 		} else {

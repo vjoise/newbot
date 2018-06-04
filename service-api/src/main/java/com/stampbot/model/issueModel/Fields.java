@@ -3,7 +3,10 @@ package com.stampbot.model.issueModel;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.stampbot.model.createIssueModel.*;
+import com.stampbot.model.createIssueModel.ComponentsItem;
+import com.stampbot.model.createIssueModel.Customfield80000;
+import com.stampbot.model.createIssueModel.Parent;
+import com.stampbot.model.createIssueModel.Security;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class Fields {
     private Parent parent;
 
     @JsonProperty("fixVersions")
-    private List<FixVersionsItem> fixVersions;
+    private List<Version> fixVersions;
 
     @JsonProperty("aggregatetimespent")
     private Object aggregatetimespent;
@@ -66,7 +69,7 @@ public class Fields {
     private Object aggregatetimeoriginalestimate;
 
     @JsonProperty("versions")
-    private List<VersionsItem> versions;
+    private List<Version> versions;
 
     @JsonProperty("issuelinks")
     private List<IssuelinksItem> issuelinks;
@@ -209,12 +212,12 @@ public class Fields {
         return project;
     }
 
-    public void setFixVersions(List<FixVersionsItem> fixVersions) {
-        this.fixVersions = fixVersions;
+    public List<Version> getFixVersions() {
+        return fixVersions;
     }
 
-    public List<FixVersionsItem> getFixVersions() {
-        return fixVersions;
+    public void setFixVersions(List<Version> fixVersions) {
+        this.fixVersions = fixVersions;
     }
 
     public void setAggregatetimespent(Object aggregatetimespent) {
@@ -313,12 +316,12 @@ public class Fields {
         return aggregatetimeoriginalestimate;
     }
 
-    public void setVersions(List<VersionsItem> versions) {
-        this.versions = versions;
+    public List<Version> getVersions() {
+        return versions;
     }
 
-    public List<VersionsItem> getVersions() {
-        return versions;
+    public void setVersions(List<Version> versions) {
+        this.versions = versions;
     }
 
     public void setIssuelinks(List<IssuelinksItem> issuelinks) {

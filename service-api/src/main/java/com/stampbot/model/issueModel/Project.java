@@ -8,106 +8,131 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Project{
+public class Project {
 
-	@JsonProperty("avatarUrls")
-	private AvatarUrls avatarUrls;
+    @JsonProperty("avatarUrls")
+    private AvatarUrls avatarUrls;
 
-	@JsonProperty("projectCategory")
-	private ProjectCategory projectCategory;
+    @JsonProperty("projectCategory")
+    private ProjectCategory projectCategory;
 
-	@JsonProperty("projectTypeKey")
-	private String projectTypeKey;
+    @JsonProperty("avatarURI")
+    private String avatarURI;
 
-	@JsonProperty("issuetypes")
-	private List<Issuetype> issuetypes;
+    @JsonProperty("projectTypeKey")
+    private String projectTypeKey;
 
-	@JsonProperty("name")
-	private String name;
+    @JsonProperty("issuetypes")
+    private List<Issuetype> issuetypes;
 
-	@JsonProperty("self")
-	private String self;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("id")
-	private String id;
+    @JsonProperty("self")
+    private String self;
 
-	@JsonProperty("key")
-	private String key;
+    @JsonProperty("id")
+    private String id;
 
-	public void setAvatarUrls(AvatarUrls avatarUrls){
-		this.avatarUrls = avatarUrls;
-	}
+    @JsonProperty("projectId")
+    private String projectId;
 
-	public AvatarUrls getAvatarUrls(){
-		return avatarUrls;
-	}
+    @JsonProperty("key")
+    private String key;
 
-	public void setProjectCategory(ProjectCategory projectCategory){
-		this.projectCategory = projectCategory;
-	}
+    public AvatarUrls getAvatarUrls() {
+        return avatarUrls;
+    }
 
-	public ProjectCategory getProjectCategory(){
-		return projectCategory;
-	}
+    public void setAvatarUrls(AvatarUrls avatarUrls) {
+        this.avatarUrls = avatarUrls;
+    }
 
-	public List<Issuetype> getIssuetypes() {
-		return issuetypes;
-	}
+    public ProjectCategory getProjectCategory() {
+        return projectCategory;
+    }
 
-	public void setIssuetypes(List<Issuetype> issuetypes) {
-		this.issuetypes = issuetypes;
-	}
+    public void setProjectCategory(ProjectCategory projectCategory) {
+        this.projectCategory = projectCategory;
+    }
 
-	public void setName(String name){
-		this.name = name;
-	}
+    public List<Issuetype> getIssuetypes() {
+        return issuetypes;
+    }
 
-	public String getName(){
-		return name;
-	}
+    public void setIssuetypes(List<Issuetype> issuetypes) {
+        this.issuetypes = issuetypes;
+    }
 
-	public void setSelf(String self){
-		this.self = self;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getSelf(){
-		return self;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setId(String id){
-		this.id = id;
-	}
+    public String getSelf() {
+        return self;
+    }
 
-	public String getId(){
-		return id;
-	}
+    public void setSelf(String self) {
+        this.self = self;
+    }
 
-	public void setKey(String key){
-		this.key = key;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getKey(){
-		return key;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setProjectTypeKey(String projectTypeKey){
-		this.projectTypeKey = projectTypeKey;
-	}
+    public String getProjectId() {
+        return projectId;
+    }
 
-	public String getProjectTypeKey(){
-		return projectTypeKey;
-	}
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
 
-	@Override
- 	public String toString(){
-		return 
-			"Project{" + 
-			"avatarUrls = '" + avatarUrls + '\'' + 
-			",projectCategory = '" + projectCategory + '\'' + 
-			",name = '" + name + '\'' + 
-			",self = '" + self + '\'' + 
-			",id = '" + id + '\'' + 
-			",key = '" + key + '\'' + 
-			"}";
-		}
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getProjectTypeKey() {
+        return projectTypeKey;
+    }
+
+    public void setProjectTypeKey(String projectTypeKey) {
+        this.projectTypeKey = projectTypeKey;
+    }
+
+    public String getAvatarURI() {
+        return avatarURI;
+    }
+
+    public void setAvatarURI(String avatarURI) {
+        this.avatarURI = avatarURI;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "avatarUrls=" + avatarUrls +
+                ", projectCategory=" + projectCategory +
+                ", avatarURI='" + avatarURI + '\'' +
+                ", projectTypeKey='" + projectTypeKey + '\'' +
+                ", issuetypes=" + issuetypes +
+                ", name='" + name + '\'' +
+                ", self='" + self + '\'' +
+                ", id='" + id + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", key='" + key + '\'' +
+                '}';
+    }
 }

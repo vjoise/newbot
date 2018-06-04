@@ -26,9 +26,10 @@ public class App {
     }
 
     @PostConstruct
-    public void initializeWorkflow(){
+    public void initializeWorkflow() {
         log.info("Initializing workflow...");
         workflowDataStore.build();
+//        workflowDataStore.buildForDev();
         log.info("The number of workflows created are :: " + workflowDataStore.count());
     }
 

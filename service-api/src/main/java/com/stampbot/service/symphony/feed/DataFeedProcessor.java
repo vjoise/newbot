@@ -4,12 +4,16 @@ import com.google.common.collect.Maps;
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserIntent;
 import com.stampbot.entity.UserBotConversationLog;
+import com.stampbot.entity.UserWorkflowLog;
+import com.stampbot.entity.WorkflowQuestionEntity;
 import com.stampbot.repository.UserBotConversationRepository;
+import com.stampbot.repository.WorkflowQuestionRepository;
 import com.stampbot.service.nlp.MessageParser;
 import com.stampbot.service.nlp.classifier.ClassifierResponse;
 import com.stampbot.service.nlp.classifier.ClassifierResponseType;
 import com.stampbot.service.nlp.classifier.UserInputClassifier;
 import com.stampbot.service.symphony.service.SymphonyService;
+import com.stampbot.service.workflow.UserWorkflowStore;
 import com.stampbot.service.workflow.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +60,12 @@ public class DataFeedProcessor {
 	@Autowired
 	private UserBotConversationRepository userBotConversationRepository;
 
+	@Autowired
+	private UserWorkflowStore userWorkflowStore;
+
+	@Autowired
+	private WorkflowQuestionRepository questionRepository;
+
 	@PostConstruct
 	public void init() throws Exception {
 		log.info("Initializing the DataFeedClient");
@@ -81,14 +91,12 @@ public class DataFeedProcessor {
 			log.info("Message from user  :: " + messageText);
 			UserIntent userIntent = extractUserIntent(symEvent);
 			persistUserConversationLog(symEvent, null);
-			ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
 			UserInput userInput = messageParser.parseInputMessage(userIntent);
+
 			final String[] botResponse = {""};
 			if (!userInput.isNegativeSentiment()) {
-				if (classifiedResponse.getResponseType() == ClassifierResponseType.WORKFLOW) {
-					HashMap<String, Object> workflowContext = triggerWorkflow(symEvent, classifiedResponse, userInput);
-					botResponse[0] = String.class.cast(workflowContext.get("botResponse"));
-				}
+				ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
+				processUserInput(symEvent, classifiedResponse, userInput, botResponse);
 			} else {
 				trySafe(() -> {
 					botResponse[0] = "Sorry didn't get that!";
@@ -97,6 +105,41 @@ public class DataFeedProcessor {
 			}
 			persistUserConversationLog(symEvent, botResponse[0]);
 		});
+	}
+
+	private void logWorkflowRecords(SymEvent symEvent, UserInput userInput) {
+		List<UserWorkflowLog> logs = userWorkflowStore.findByConversationId(symEvent.getPayload().getMessageSent().getStreamId());
+		final Map<Long, UserWorkflowLog> workflowLogMap = Maps.newHashMap();
+		logs.forEach(log -> workflowLogMap.put(log.getId(), log));
+		WorkflowQuestionEntity questionEntity = userInput.getQuestionEntity();
+		if (questionEntity == null || questionEntity.getWorkflowEntity() == null) {
+			return;
+		}
+		List<WorkflowQuestionEntity> questions = questionEntity.getWorkflowEntity().getQuestions();
+		questions.forEach(question -> {
+			workflowLogMap.forEach((userId, workflowLog) -> {
+				if (question.getId().equals(workflowLog.getQuestionId())) {
+					UserWorkflowLog log = userWorkflowStore.findById(workflowLog.getId());
+					log.setPassed(true);
+				}
+			});
+		});
+	}
+
+	private void processUserInput(SymEvent symEvent, ClassifierResponse classifiedResponse, UserInput userInput, String[] botResponse) {
+		if (classifiedResponse.getResponseType() == ClassifierResponseType.WORKFLOW) {
+			boolean freshUser = userWorkflowStore.isEmpty(userInput);
+			if (freshUser) {
+				logWorkflowRecords(symEvent, userInput);
+			}
+			HashMap<String, Object> workflowContext = triggerWorkflow(symEvent, classifiedResponse, userInput);
+			botResponse[0] = String.class.cast(workflowContext.get("botResponse"));
+		} else {
+			trySafe(() -> {
+				botResponse[0] = classifiedResponse.getMessage();
+				symphonyService.sendMessage(symEvent, botResponse[0]);
+			}, true);
+		}
 	}
 
 	private HashMap<String, Object> triggerWorkflow(SymEvent symEvent, ClassifierResponse classifiedResponse, UserInput userInput) {

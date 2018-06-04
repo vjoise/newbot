@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserWorkflowRepository extends CrudRepository<UserWorkflowLog, Long>{
 
@@ -14,4 +16,6 @@ public interface UserWorkflowRepository extends CrudRepository<UserWorkflowLog, 
 
 	@Query("select log from UserWorkflowLog log where log.passed = false and log.conversationId = :conversationId")
 	UserWorkflowLog getUnansweredQuestion(@Param("conversationId") String conversationId);
+
+	List<UserWorkflowLog> findByConversationIdOrderById(@Param("conversationId") String conversationId);
 }

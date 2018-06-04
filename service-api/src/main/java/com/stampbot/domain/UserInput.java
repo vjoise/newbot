@@ -1,5 +1,6 @@
 package com.stampbot.domain;
 
+import com.stampbot.entity.WorkflowQuestionEntity;
 import edu.stanford.nlp.ie.util.RelationTriple;
 import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.Data;
@@ -28,6 +29,8 @@ public class UserInput {
     private String detectedWorkflow;
 
     private String conversationId;
+
+    private WorkflowQuestionEntity questionEntity;
 
     public UserInput() {
 

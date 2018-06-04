@@ -16,7 +16,7 @@ public class UserWorkflowLog extends UniqueTimeStamEntity{
 	private String conversationId;
 
 	@Column
-	private String questionId;
+	private Long questionId;
 
 	@Column
 	private Long workflowId;

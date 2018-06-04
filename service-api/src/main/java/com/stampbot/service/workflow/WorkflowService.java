@@ -51,7 +51,7 @@ public class WorkflowService {
 		final Class<?>[] actionHandlerClass = {null};
 		trySafe(()-> {
 			actionHandlerClass[0] = Class.forName(byWorkflowName.getActionHandler());
-		}, true);
+		}, false);
 		if (actionHandlerClass[0] != null) {
 			WorkflowQuesionHandler quesionHandler = WorkflowQuesionHandler.class.cast(context.getBean(actionHandlerClass[0]));
 			quesionHandler.handle(workflowContext);

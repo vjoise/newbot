@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 public class ActionItemDetailEntity extends UniqueTimeStamEntity {
 
 	@Column
-	private String userId;
+	private Long userId;
 
 	@Column
 	private String actionId;

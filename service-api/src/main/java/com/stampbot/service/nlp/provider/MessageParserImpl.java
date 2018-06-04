@@ -2,6 +2,7 @@ package com.stampbot.service.nlp.provider;
 
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserInputWord;
+import com.stampbot.domain.UserIntent;
 import com.stampbot.service.nlp.MessageParser;
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -41,9 +42,9 @@ class MessageParserImpl implements MessageParser {
 	}
 
 	@Override
-	public UserInput parseInputMessage(String inputMessage) {
-		UserInput userInput = new UserInput(inputMessage);
-		Annotation annotation = new Annotation(inputMessage);
+	public UserInput parseInputMessage(UserIntent intent) {
+		UserInput userInput = intent.getCurrentInput();
+		Annotation annotation = new Annotation(intent.getCurrentInput().getInputSentence());
 		pipeline.annotate(annotation);
 		List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 		sentences.forEach(sentence -> {
@@ -84,6 +85,6 @@ class MessageParserImpl implements MessageParser {
 	}
 
 	public static void main(String[] args) {
-		new MessageParserImpl().parseInputMessage("I will work on JIRA-123");
+		//new MessageParserImpl().parseInputMessage("I will work on JIRA-123");
 	}
 }

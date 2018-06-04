@@ -15,7 +15,7 @@ public class UserInput {
 
     private String inputSentence;
 
-    private String userId;
+    private Long userId;
 
     private List<UserInputWord> words = Lists.newArrayList();
 

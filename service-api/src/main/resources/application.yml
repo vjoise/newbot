@@ -39,6 +39,10 @@ jira:
     createMeta: ${jira.url.home}/rest/api/2/issue/createmeta
     createIssue: ${jira.url.home}/rest/api/2/issue
     getIssue: ${jira.url.home}/rest/api/latest/issue/
-    getVersions: ${jira.url.home}/rest/api/2/project/${jira.project.id}}/versions
+    getVersions: ${jira.url.home}/rest/api/2/project/{projectId}/versions
+    getBoards: ${jira.url.home}/rest/agile/1.0/board
+    getSprints: ${jira.url.home}/rest/agile/1.0/board/{boardId}/sprint
+    getIssuesForSprint: ${jira.url.home}/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue
   project:
-    id: "AUD"
+    key: "AUD"
+    id: "10000"

@@ -1,11 +1,8 @@
-package com.stampbot.model;
+package com.stampbot.model.issueModel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.stampbot.model.issueModel.Fields;
-import com.stampbot.model.issueModel.Names;
-import com.stampbot.model.issueModel.Schema;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)

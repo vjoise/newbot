@@ -1,0 +1,57 @@
+{
+  "expand": "projects",
+  "projects": [{
+    "issuetypes": [
+      {
+        "name": "Task",
+        "self": "https://auditingapp.atlassian.net/rest/api/2/issuetype/10002",
+        "description": "A task that needs to be done.",
+        "id": "10002",
+        "iconUrl": "https://auditingapp.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype",
+        "subtask": false
+      },
+      {
+        "name": "Sub-task",
+        "self": "https://auditingapp.atlassian.net/rest/api/2/issuetype/10003",
+        "description": "The sub-task of the issue",
+        "id": "10003",
+        "iconUrl": "https://auditingapp.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10316&avatarType=issuetype",
+        "subtask": true
+      },
+      {
+        "name": "Story",
+        "self": "https://auditingapp.atlassian.net/rest/api/2/issuetype/10001",
+        "description": "Stories track functionality or features expressed as user goals.",
+        "id": "10001",
+        "iconUrl": "https://auditingapp.atlassian.net/images/icons/issuetypes/story.svg",
+        "subtask": false
+      },
+      {
+        "name": "Bug",
+        "self": "https://auditingapp.atlassian.net/rest/api/2/issuetype/10004",
+        "description": "A problem which impairs or prevents the functions of the product.",
+        "id": "10004",
+        "iconUrl": "https://auditingapp.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10303&avatarType=issuetype",
+        "subtask": false
+      },
+      {
+        "name": "Epic",
+        "self": "https://auditingapp.atlassian.net/rest/api/2/issuetype/10000",
+        "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+        "id": "10000",
+        "iconUrl": "https://auditingapp.atlassian.net/images/icons/issuetypes/epic.svg",
+        "subtask": false
+      }
+    ],
+    "avatarUrls": {
+      "48x48": "https://auditingapp.atlassian.net/secure/projectavatar?avatarId=10324",
+      "24x24": "https://auditingapp.atlassian.net/secure/projectavatar?size=small&avatarId=10324",
+      "16x16": "https://auditingapp.atlassian.net/secure/projectavatar?size=xsmall&avatarId=10324",
+      "32x32": "https://auditingapp.atlassian.net/secure/projectavatar?size=medium&avatarId=10324"
+    },
+    "name": "auditingapp",
+    "self": "https://auditingapp.atlassian.net/rest/api/2/project/10000",
+    "id": "10000",
+    "key": "AUD"
+  }]
+}

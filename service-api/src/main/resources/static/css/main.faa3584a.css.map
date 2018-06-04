@@ -1,0 +1,1 @@
+{"version":3,"sources":["side-panel.css"],"names":[],"mappings":"AAAA,yBACI,WAAa","file":"static/css/main.faa3584a.css","sourcesContent":[".show-dialog-full-height {\r\n    height: 100%;\r\n}\n\n\n// WEBPACK FOOTER //\n// ./src/side-panel.css"],"sourceRoot":""}

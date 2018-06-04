@@ -1,7 +1,6 @@
 package com.stampbot.common;
 
 import com.google.api.client.http.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,19 +25,6 @@ public class HttpUtils {
             System.out.println(e.getMessage());
         }
         return new JSONObject();
-    }
-
-    public static JSONArray parseResponses(HttpResponse response) throws IOException {
-        Scanner s = new Scanner(response.getContent()).useDelimiter("\\A");
-        String result = s.hasNext() ? s.next() : "";
-        try {
-            JSONArray jsonArray = new JSONArray(result);
-            System.out.println(jsonArray.toString(2));
-            return jsonArray;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return new JSONArray();
     }
 
     public HttpResponse postResponseFromUrl(String url, HttpContent content) throws IOException {

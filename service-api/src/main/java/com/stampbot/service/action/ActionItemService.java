@@ -23,6 +23,6 @@ public class ActionItemService {
 	}
 
 	public boolean isActionPending(Long id) {
-		return repository.isActionPending();
+		return repository.isActionPending(id);
 	}
 }

@@ -2,18 +2,14 @@ package com.stampbot.service.workflow;
 
 import com.google.common.collect.Maps;
 import com.stampbot.domain.UserInput;
-import com.stampbot.entity.ActionItemEntity;
-import com.stampbot.entity.UserWorkflowLogEntity;
-import com.stampbot.entity.WorkflowEntity;
-import com.stampbot.entity.WorkflowQuestionEntity;
+import com.stampbot.entity.*;
 import com.stampbot.repository.WorkflowQuestionRepository;
 import com.stampbot.repository.WorkflowRepository;
-import com.stampbot.service.action.ActionItemService;
 import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.workflow.handler.WorkflowQuesionHandler;
-import com.stampbot.service.workflow.handler.WorkflowQuestionValidator;
 import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -30,9 +26,6 @@ public class WorkflowService {
 
 	@Autowired
 	private WorkflowRepository workflowRepository;
-
-	@Autowired
-	private ActionItemService actionItemService;
 
 	@Autowired
 	private ApplicationContext context;
@@ -53,15 +46,12 @@ public class WorkflowService {
 	public void process(Map<String, Object> workflowContext) {
 		UserInput userInput = UserInput.class.cast(workflowContext.get("userInput"));
 		SymEvent symEvent = SymEvent.class.cast(workflowContext.get("symEvent"));
-		List<ActionItemEntity> actionItemEntities = Lists.newArrayList();
-		log.info("Persisting Workflow Action Items for user...");
-		actionItemService.createActionItems(actionItemEntities);
 		final Class<?>[] handlerClass = {null};
 		WorkflowQuestionEntity unansweredQuestion = null;
 		UserWorkflowLogEntity nextUnansweredWorkflowLog = userWorkflowStore.findNextUnansweredQuestion(userInput.getConversationId());
-		if(nextUnansweredWorkflowLog != null){
+		if (nextUnansweredWorkflowLog != null) {
 			unansweredQuestion = questionRepository.findOne(nextUnansweredWorkflowLog.getQuestionId());
-		}else{
+		} else {
 			WorkflowEntity workflowEntity = workflowRepository.findByName(userInput.getDetectedWorkflow());
 			List<WorkflowQuestionEntity> byWorkflowName = questionRepository.findByWorkflowName(workflowEntity.getName());
 			unansweredQuestion = byWorkflowName.get(0);
@@ -97,6 +87,11 @@ public class WorkflowService {
 		}
 		List<WorkflowQuestionEntity> questions = questionEntity.getWorkflowEntity().getQuestions();
 		List<UserWorkflowLogEntity> logEntities = Lists.newArrayList();
+		UserWorkflowMasterEntity userWorkflowMasterEntity = null;
+		if (workflowLogMap.isEmpty()) {
+			userWorkflowMasterEntity = new UserWorkflowMasterEntity();
+		}
+		UserWorkflowMasterEntity finalUserWorkflowMasterEntity = userWorkflowMasterEntity;
 		questions.forEach(question -> {
 			if (workflowLogMap.isEmpty()) {
 				/*Log all the workflow items for this user here.*/
@@ -104,21 +99,32 @@ public class WorkflowService {
 				entity.setPassed(question.getId().equals(userInput.getQuestionEntity().getId()));
 				entity.setConversationId(userInput.getConversationId());
 				entity.setInputText(userInput.getInputSentence());
+				entity.setStatus("ACTIVE");
 				entity.setQuestionId(question.getId());
 				entity.setUserId(userInput.getUserId());
+				entity.setWorkflowId(question.getWorkflowEntity().getId());
+				entity.setUserMentionIdsList(StringUtils.join(userInput.getUserIdMentions(), ","));
+				entity.setWorkflowMaster(finalUserWorkflowMasterEntity);
 				logEntities.add(entity);
 			} else {
 				workflowLogMap.forEach((userId, workflowLog) -> {
 					if (question.getId().equals(workflowLog.getQuestionId())) {
 						UserWorkflowLogEntity log = userWorkflowStore.findById(workflowLog.getId());
 						log.setPassed(true);
+						log.setStatus("INACTIVE");
 						logEntities.add(log);
 					}
 				});
 			}
 		});
-		userWorkflowStore.save(logEntities);
-
+		if (userWorkflowMasterEntity != null) {
+			userWorkflowMasterEntity.setUserWorkflowLogEntities(logEntities);
+			userWorkflowMasterEntity.setUserId(userInput.getUserId());
+			userWorkflowMasterEntity.setConversationId(userInput.getConversationId());
+			userWorkflowStore.save(userWorkflowMasterEntity);
+		} else {
+			userWorkflowStore.save(logEntities);
+		}
 	}
 
 }

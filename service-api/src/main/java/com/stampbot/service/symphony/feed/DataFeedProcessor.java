@@ -1,5 +1,6 @@
 package com.stampbot.service.symphony.feed;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.stampbot.config.StampBotConfig;
 import com.stampbot.domain.UserInput;
@@ -17,7 +18,9 @@ import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.workflow.UserWorkflowStore;
 import com.stampbot.service.workflow.WorkflowService;
 import com.stampbot.service.workflow.handler.WorkflowQuestionValidator;
+import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,11 +30,11 @@ import org.symphonyoss.client.events.SymEvent;
 import org.symphonyoss.symphony.clients.DataFeedClient;
 import org.symphonyoss.symphony.clients.model.ApiVersion;
 import org.symphonyoss.symphony.clients.model.SymDatafeed;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import static com.stampbot.common.Utils.trySafe;
 
@@ -103,18 +106,23 @@ public class DataFeedProcessor {
 			if (isUserBot(symEvent)) {
 				return;
 			}
-			String messageText = symEvent.getPayload().getMessageSent().getMessageText();
+			SymMessage messageSent = symEvent.getPayload().getMessageSent();
+			List<Long> mentionedUserIds = Lists.newArrayList();
+			if (StringUtils.isNotBlank(messageSent.getEntityData())) {
+				checkAndPopulateUserMentions(messageSent, mentionedUserIds);
+			}
+			String messageText = messageSent.getMessageText();
 			log.info("Message from user  :: " + messageText);
 			UserIntent userIntent = extractUserIntent(symEvent);
 			persistUserConversationLog(symEvent, null);
 			UserInput userInput = messageParser.parseInputMessage(userIntent);
+			userInput.setUserIdMentions(mentionedUserIds);
 			userInput.setUserId(symEvent.getInitiator().getId());
-			userInput.setConversationId(symEvent.getPayload().getMessageSent().getStreamId());
+			userInput.setConversationId(messageSent.getStreamId());
 			boolean noPendingAnswersFromThisUser = userWorkflowStore.isEmpty(userInput);
-
 			final String[] botResponse = {""};
 			if (noPendingAnswersFromThisUser) {
-				if (!userInput.isNegativeSentiment()) {
+				if (true) {
 					ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
 					String userEmailId = symEvent.getInitiator().getEmailAddress();
 					if (userRoleNotMatchingWorkflow(userEmailId, classifiedResponse.getMessage())) {
@@ -164,10 +172,27 @@ public class DataFeedProcessor {
 		});
 	}
 
+	private void checkAndPopulateUserMentions(SymMessage messageSent, List<Long> mentionedUserIds) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			Map map = mapper.readValue(messageSent.getEntityData(), Map.class);
+			map.forEach((key, value)->{
+				Map internal = (Map) value;
+				Iterator iterator = ((Map) ((List) ((Map.Entry) internal.entrySet().iterator().next()).getValue()).get(0)).entrySet().iterator();
+				iterator.next();
+				Object next1 = iterator.next();
+				mentionedUserIds.add((Long)((Map.Entry) next1).getValue());
+				System.out.println("User Mentions :: user ID :: "+((Map.Entry) next1).getValue());
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private boolean userRoleNotMatchingWorkflow(String userEmailId, String workflowName) {
 		UserRoleEnum key = USER_ROLE_MAP.get(userEmailId);
 		return !USER_ROLE_MAP.containsKey(userEmailId)
-			|| !USER_WORKFLOW_MAP.get(key).equalsIgnoreCase(workflowName);
+				|| !USER_WORKFLOW_MAP.get(key).equalsIgnoreCase(workflowName);
 	}
 
 	private void processUserInput(SymEvent symEvent, ClassifierResponse classifiedResponse, UserInput userInput, String[] botResponse) {

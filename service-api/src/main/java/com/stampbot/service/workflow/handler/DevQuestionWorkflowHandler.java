@@ -34,7 +34,7 @@ public class DevQuestionWorkflowHandler implements WorkflowQuesionHandler {
     public void handle(Map<String, Object> context) {
         UserInput userInput = UserInput.class.cast(context.get("userInput"));
         userInput.setDetectedWorkflow("DEV_WORKFLOW");                                  //HARD-CODED
-        WorkflowQuestionEntity byWorkflowName = questionRepository.findByWorkflowName(userInput.getDetectedWorkflow());
+        WorkflowQuestionEntity byWorkflowName = questionRepository.findByWorkflowName(userInput.getDetectedWorkflow()).get(0);
         byWorkflowName.setActionHandler(DevQuestionWorkflowHandler.class.getName());    //HARD-CODED
         SymEvent symEvent = SymEvent.class.cast(context.get("symEvent"));
         List<String> words = userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList());

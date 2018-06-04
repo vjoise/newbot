@@ -2,8 +2,7 @@ package com.stampbot.entity;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -28,5 +27,14 @@ public class UserWorkflowLogEntity extends UniqueTimeStamEntity{
 	private String inputText;
 
 	@Column
+	private String userMentionIdsList;
+
+	@Column
 	private Boolean passed;
+
+	@Column
+	private String status;
+
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	private UserWorkflowMasterEntity workflowMaster;
 }

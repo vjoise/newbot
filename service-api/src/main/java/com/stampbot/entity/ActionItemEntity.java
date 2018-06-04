@@ -22,6 +22,9 @@ public class ActionItemEntity extends UniqueTimeStamEntity {
 	@Column
 	private Long userId;
 
+	@Column
+	private String status;
+
 	@OneToMany
 	private List<ActionItemDetailEntity> itemDetails;
 

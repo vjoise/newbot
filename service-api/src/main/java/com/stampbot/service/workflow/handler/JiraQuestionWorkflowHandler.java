@@ -2,11 +2,13 @@ package com.stampbot.service.workflow.handler;
 
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserInputWord;
+import com.stampbot.entity.ActionItemEntity;
 import com.stampbot.entity.UserWorkflowLogEntity;
 import com.stampbot.entity.WorkflowQuestionEntity;
 import com.stampbot.model.IssueResponse;
 import com.stampbot.repository.WorkflowQuestionRepository;
 import com.stampbot.repository.WorkflowRepository;
+import com.stampbot.service.action.ActionItemService;
 import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.task.TaskService;
 import com.stampbot.service.workflow.UserWorkflowStore;
@@ -44,6 +46,9 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 	@Autowired
 	private UserWorkflowStore userWorkflowStore;
 
+	@Autowired
+	private ActionItemService actionItemService;
+
 	@Override
 	public void handle(Map<String, Object> context) {
 		UserInput userInput = UserInput.class.cast(context.get("userInput"));
@@ -55,7 +60,8 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 			}, false);
 			return;
 		}
-		UserWorkflowLogEntity previousWorkflowLogEntity = userWorkflowStore.findQuestionWithNextQuestionId(userInput.getQuestionEntity().getId());
+		UserWorkflowLogEntity previousWorkflowLogEntity = userWorkflowStore.findQuestionWithNextQuestionId(userInput.getQuestionEntity().getId()
+				, userInput.getQuestionEntity().getWorkflowEntity().getId());
 		List<String> words = Arrays.asList(previousWorkflowLogEntity.getInputText().split(" "));
 		List<String> ids = words.stream().filter(id ->
 				id.matches("((([a-zA-Z]{1,10})-)*[a-zA-Z]+-\\d+)")).collect(Collectors.toList());
@@ -74,6 +80,20 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 		trySafe(() -> {
 			symphonyService.sendMessage(symEvent, "Please wait, while I create action items for the users you have specified.");
 		}, false);
+		List<ActionItemEntity> actionItemEntities = Lists.newArrayList();
+		Arrays.asList(previousWorkflowLogEntity.getUserMentionIdsList().split(",")).forEach(userId -> {
+			log.info("Persisting Workflow Action Items for user..." + userId);
+			strings.forEach(task -> {
+				ActionItemEntity entity = new ActionItemEntity();
+				entity.setAction("User Testing");
+				entity.setStatus("NOT_STARTED");
+				entity.setUserId(Long.parseLong(userId));
+				entity.setResource(task);
+				actionItemEntities.add(entity);
+			});
+		});
+		/*Persist actionItems here.*/
+		actionItemService.createActionItems(actionItemEntities);
 		createSubTask(symEvent, userInput);
 	}
 

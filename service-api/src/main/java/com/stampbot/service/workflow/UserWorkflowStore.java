@@ -1,7 +1,7 @@
 package com.stampbot.service.workflow;
 
 import com.stampbot.domain.UserInput;
-import com.stampbot.entity.UserWorkflowLog;
+import com.stampbot.entity.UserWorkflowLogEntity;
 import com.stampbot.repository.UserWorkflowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,17 +18,27 @@ public class UserWorkflowStore {
 		return repository.isEmpty(userInput.getUserId(), userInput.getConversationId());
 	}
 
-	public UserWorkflowLog findNextUnansweredQuestion(String conversationId){
-		UserWorkflowLog log = repository.getUnansweredQuestion(conversationId);
-		return log;
+	public UserWorkflowLogEntity findNextUnansweredQuestion(String conversationId){
+		return repository.getUnansweredQuestion(conversationId);
 	}
 
-	public List<UserWorkflowLog> findByConversationId(String conversationId) {
-		List<UserWorkflowLog> logs = repository.findByConversationIdOrderById(conversationId);
-		return logs;
+	public UserWorkflowLogEntity findNextUnansweredQuestionByWorkflow(String workflowId){
+		return repository.getUnansweredQuestionGivenWorkflow(workflowId);
 	}
 
-	public UserWorkflowLog findById(Long id) {
+	public List<UserWorkflowLogEntity> findByConversationId(String conversationId) {
+		return repository.findByConversationIdOrderById(conversationId);
+	}
+
+	public UserWorkflowLogEntity findById(Long id) {
 		return repository.findOne(id);
+	}
+
+	public void save(List<UserWorkflowLogEntity> logEntities) {
+		repository.save(logEntities);
+	}
+
+	public UserWorkflowLogEntity findQuestionWithNextQuestionId(Long id) {
+		return repository.findQuestionWithNextQuestionId(id);
 	}
 }

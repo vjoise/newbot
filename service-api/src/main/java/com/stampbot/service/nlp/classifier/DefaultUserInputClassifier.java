@@ -9,7 +9,7 @@ class DefaultUserInputClassifier implements UserInputClassifier {
 	public ClassifierResponse classify(String input) {
 		ClassifierResponse response = new ClassifierResponse();
 		response.setResponseType(ClassifierResponseType.WORKFLOW);
-		response.setMessage("JIRA_WORKFLOW");
+		response.setMessage("USER_WORKFLOW");
 		return response;
 	}
 }

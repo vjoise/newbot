@@ -26,6 +26,12 @@ public class UserIntent {
 
 	private UserInput currentInput;
 
+	private Integer numberOfWrongInputs = 0;
+
+	public void incrementWrongInputAttempts(){
+		this.numberOfWrongInputs++;
+	}
+
 	public void addInput(UserInput userInput){
 		currentInput = userInput;
 		userInputList.add(currentInput);

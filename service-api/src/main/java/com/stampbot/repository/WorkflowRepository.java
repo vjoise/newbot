@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WorkflowRepository extends CrudRepository<WorkflowEntity, Long>{
+
+	WorkflowEntity findByName(String detectedWorkflow);
+
 }

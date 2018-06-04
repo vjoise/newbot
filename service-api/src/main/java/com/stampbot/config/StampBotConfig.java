@@ -42,4 +42,7 @@ public class StampBotConfig {
     @NotNull
     private String taskReminderInterval;
 
+    @NotNull
+    private String maxAllowedWrongInputs;
+
 }

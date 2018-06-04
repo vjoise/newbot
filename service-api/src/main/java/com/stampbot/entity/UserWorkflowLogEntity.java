@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 
 @Data
 @Entity
-public class UserWorkflowLog extends UniqueTimeStamEntity{
+public class UserWorkflowLogEntity extends UniqueTimeStamEntity{
 
 	@Column
 	private Long userId;

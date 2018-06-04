@@ -2,17 +2,22 @@ package com.stampbot.service.workflow.handler;
 
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserInputWord;
+import com.stampbot.entity.UserWorkflowLogEntity;
 import com.stampbot.entity.WorkflowQuestionEntity;
 import com.stampbot.model.IssueResponse;
 import com.stampbot.repository.WorkflowQuestionRepository;
 import com.stampbot.repository.WorkflowRepository;
 import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.task.TaskService;
+import com.stampbot.service.workflow.UserWorkflowStore;
+import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.symphonyoss.client.events.SymEvent;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,17 +41,49 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 	@Autowired
 	private WorkflowQuestionRepository questionRepository;
 
+	@Autowired
+	private UserWorkflowStore userWorkflowStore;
+
 	@Override
 	public void handle(Map<String, Object> context) {
 		UserInput userInput = UserInput.class.cast(context.get("userInput"));
-		WorkflowQuestionEntity byWorkflowName = questionRepository.findByWorkflowName(userInput.getDetectedWorkflow());
+		boolean no = userInput.getWords().stream().anyMatch(word -> word.getWord().equalsIgnoreCase("no"));
 		SymEvent symEvent = SymEvent.class.cast(context.get("symEvent"));
-		List<String> ids = userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList());
-		trySafe(() -> {
-			List<String> strings = taskService.validateIds(ids);
+		if (no) {
+			trySafe(() -> {
+				symphonyService.sendMessage(symEvent, "Thank you for using KAKI, have a Productive Day!");
+			}, false);
+			return;
+		}
+		UserWorkflowLogEntity previousWorkflowLogEntity = userWorkflowStore.findQuestionWithNextQuestionId(userInput.getQuestionEntity().getId());
+		List<String> words = Arrays.asList(previousWorkflowLogEntity.getInputText().split(" "));
+		List<String> ids = words.stream().filter(id ->
+				id.matches("((([a-zA-Z]{1,10})-)*[a-zA-Z]+-\\d+)")).collect(Collectors.toList());
+		List<String> strings;
+		try {
+			strings = taskService.validateIds(ids);
 			log.info("Valid ones :: " + strings);
-		}, true);
+		} catch (Exception e) {
+			sendErrorToUser(symEvent, userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList()));
+			return;
+		}
+		if (CollectionUtils.isEmpty(strings)) {
+			sendErrorToUser(symEvent, userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList()));
+			return;
+		}
+		trySafe(() -> {
+			symphonyService.sendMessage(symEvent, "Please wait, while I create action items for the users you have specified.");
+		}, false);
 		createSubTask(symEvent, userInput);
+	}
+
+	private void sendErrorToUser(SymEvent symEvent, List<String> strings) {
+		log.info("The Jira Id(s) seems to be invalid! :: " + strings);
+		List<String> finalStrings = strings;
+		trySafe(() -> {
+			symphonyService.sendMessage(symEvent, "The Task ID(s) seem to be invalid - "
+					+ finalStrings.toString());
+		}, false);
 	}
 
 	private boolean toCreateSubTask(UserInput userInput) {

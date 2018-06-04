@@ -1,10 +1,11 @@
 package com.stampbot.service.symphony.feed;
 
 import com.google.common.collect.Maps;
+import com.stampbot.config.StampBotConfig;
 import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserIntent;
 import com.stampbot.entity.UserBotConversationLog;
-import com.stampbot.entity.UserWorkflowLog;
+import com.stampbot.entity.UserWorkflowLogEntity;
 import com.stampbot.entity.WorkflowQuestionEntity;
 import com.stampbot.repository.UserBotConversationRepository;
 import com.stampbot.repository.WorkflowQuestionRepository;
@@ -15,8 +16,10 @@ import com.stampbot.service.nlp.classifier.UserInputClassifier;
 import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.workflow.UserWorkflowStore;
 import com.stampbot.service.workflow.WorkflowService;
+import com.stampbot.service.workflow.handler.WorkflowQuestionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
@@ -66,6 +69,15 @@ public class DataFeedProcessor {
 	@Autowired
 	private WorkflowQuestionRepository questionRepository;
 
+	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
+	private StampBotConfig config;
+
+	private static final Map<String, UserRoleEnum> USER_ROLE_MAP = Maps.newHashMap();
+	private static final Map<UserRoleEnum, String> USER_WORKFLOW_MAP = Maps.newHashMap();
+
 	@PostConstruct
 	public void init() throws Exception {
 		log.info("Initializing the DataFeedClient");
@@ -73,6 +85,10 @@ public class DataFeedProcessor {
 		dataFeed = dataFeedClient.createDatafeed(ApiVersion.V4);
 		log.info("DataFeedClient ID :: " + dataFeedClient);
 		log.info("Data Feed ID :: " + dataFeed.getId());
+		USER_ROLE_MAP.put("jingyu.li@credit-suisse.com", UserRoleEnum.DEV);
+		USER_ROLE_MAP.put("venkatesh.joisekrishnamurthy@credit-suisse.com", UserRoleEnum.USER);
+		USER_WORKFLOW_MAP.put(UserRoleEnum.DEV, "DEV_WORKFLOW");
+		USER_WORKFLOW_MAP.put(UserRoleEnum.USER, "USER_WORKFLOW");
 	}
 
 	@Scheduled(fixedRate = 1000)
@@ -92,19 +108,66 @@ public class DataFeedProcessor {
 			UserIntent userIntent = extractUserIntent(symEvent);
 			persistUserConversationLog(symEvent, null);
 			UserInput userInput = messageParser.parseInputMessage(userIntent);
+			userInput.setUserId(symEvent.getInitiator().getId());
+			userInput.setConversationId(symEvent.getPayload().getMessageSent().getStreamId());
+			boolean noPendingAnswersFromThisUser = userWorkflowStore.isEmpty(userInput);
 
 			final String[] botResponse = {""};
-			if (!userInput.isNegativeSentiment()) {
-				ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
-				processUserInput(symEvent, classifiedResponse, userInput, botResponse);
+			if (noPendingAnswersFromThisUser) {
+				if (!userInput.isNegativeSentiment()) {
+					ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
+					String userEmailId = symEvent.getInitiator().getEmailAddress();
+					if (userRoleNotMatchingWorkflow(userEmailId, classifiedResponse.getMessage())) {
+						trySafe(() -> {
+							botResponse[0] = "Sorry didn't get that!";
+							symphonyService.sendMessage(symEvent, botResponse[0]);
+						}, true);
+					}
+					processUserInput(symEvent, classifiedResponse, userInput, botResponse);
+				} else {
+					trySafe(() -> {
+						botResponse[0] = "Sorry didn't get that!";
+						symphonyService.sendMessage(symEvent, botResponse[0]);
+					}, true);
+				}
 			} else {
-				trySafe(() -> {
-					botResponse[0] = "Sorry didn't get that!";
-					symphonyService.sendMessage(symEvent, botResponse[0]);
-				}, true);
+				//he can also answer previous questions like yes/no for confirmation
+				UserWorkflowLogEntity workflowLog = userWorkflowStore.findNextUnansweredQuestion(userInput.getConversationId());
+				WorkflowQuestionEntity unansweredQuestion = questionRepository.findOne(workflowLog.getQuestionId());
+				Class<?>[] validatorClass = {null};
+				String inputValidator = unansweredQuestion.getInputValidator();
+				workflowService.stringToClass(inputValidator, validatorClass);
+				if (validatorClass[0] != null) {
+					WorkflowQuestionValidator validator = WorkflowQuestionValidator.class.cast(context.getBean(validatorClass[0]));
+					if (validator.isValidInput(userInput)) {
+						//do this only if the input is valid.
+						ClassifierResponse classifierResponse = new ClassifierResponse();
+						classifierResponse.setMessage(unansweredQuestion.getWorkflowEntity().getName());
+						classifierResponse.setResponseType(ClassifierResponseType.WORKFLOW);
+						processUserInput(symEvent, classifierResponse, userInput, botResponse);
+					} else {
+						if (userIntent.getNumberOfWrongInputs() >= Integer.parseInt(config.getMaxAllowedWrongInputs())) {
+							trySafe(() -> {
+								botResponse[0] = "I need a confirmation but you have exceeded the number of attempts, see you later!";
+								symphonyService.sendMessage(symEvent, botResponse[0]);
+							}, true);
+						}
+						userIntent.incrementWrongInputAttempts();
+						trySafe(() -> {
+							botResponse[0] = unansweredQuestion.getQuestionText();
+							symphonyService.sendMessage(symEvent, botResponse[0]);
+						}, true);
+					}
+				}
 			}
 			persistUserConversationLog(symEvent, botResponse[0]);
 		});
+	}
+
+	private boolean userRoleNotMatchingWorkflow(String userEmailId, String workflowName) {
+		UserRoleEnum key = USER_ROLE_MAP.get(userEmailId);
+		return !USER_ROLE_MAP.containsKey(userEmailId)
+			|| !USER_WORKFLOW_MAP.get(key).equalsIgnoreCase(workflowName);
 	}
 
 	private void processUserInput(SymEvent symEvent, ClassifierResponse classifiedResponse, UserInput userInput, String[] botResponse) {
@@ -156,4 +219,7 @@ public class DataFeedProcessor {
 	}
 
 
+	private static enum UserRoleEnum {
+		USER, DEV
+	}
 }

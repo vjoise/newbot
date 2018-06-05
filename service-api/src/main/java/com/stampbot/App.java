@@ -29,7 +29,7 @@ public class App {
     public void initializeWorkflow() {
         log.info("Initializing workflow...");
         workflowDataStore.build();
-//        workflowDataStore.buildForDev();
+        workflowDataStore.buildForDev();
         log.info("The number of workflows created are :: " + workflowDataStore.count());
     }
 

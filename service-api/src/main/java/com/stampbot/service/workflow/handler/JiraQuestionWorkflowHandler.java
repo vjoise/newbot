@@ -72,11 +72,11 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 			strings = taskService.validateIds(ids);
 			log.info("Valid ones :: " + strings);
 		} catch (Exception e) {
-			sendErrorToUser(symEvent, userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList()));
+			sendErrorToUser(symEvent, ids);
 			return;
 		}
 		if (CollectionUtils.isEmpty(strings)) {
-			sendErrorToUser(symEvent, userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList()));
+			sendErrorToUser(symEvent, ids);
 			return;
 		}
 		String userMentionIdsList = previousWorkflowLogEntity.getUserMentionIdsList();
@@ -113,7 +113,8 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 		createSubTask(symEvent, tempInput);
 		Arrays.asList(userMentionIdsList.split(",")).forEach(userId -> {
 			trySafe(() -> {
-				symphonyService.sendMessage(UserUtil.getUser(Long.parseLong(userId)), "Please wait, while I create action items on Jira for the user(s) :: "
+				symphonyService.sendMessage(UserUtil.getUser(Long.parseLong(userId)),
+						"A Testing Jira task has been created for you! :: " + startTestingForJira(tempInput)
 						+ userNameMentions);
 			}, false);
 		});

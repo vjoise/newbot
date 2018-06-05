@@ -25,7 +25,16 @@ public class ActionItemEntity extends UniqueTimeStamEntity {
 	@Column
 	private String status;
 
+	@Column
+	private Long workflowId;
+
+	@Column
+	private Long masterWorkflowId;
+
 	@OneToMany
 	private List<ActionItemDetailEntity> itemDetails;
+
+	@Column
+	private String conversationId;
 
 }

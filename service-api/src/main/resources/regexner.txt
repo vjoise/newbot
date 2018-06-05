@@ -1,3 +1,4 @@
-(work.*|assigned.*)	ASSIGNED	1.0
+(will.*work.*|I.*will.*pick.*)	USER_WORKFLOW	1.0
 (hi.*|hello.*)	GREETING	1.0
-(([a-zA-Z]{1,10})-)*[a-zA-Z]+-\d+	GREETING	1.0
+(test.*|please.*test.*)	DEV_WORKFLOW	1.0
+(([a-zA-Z]{1,10})-)*[a-zA-Z]+-\d+	TASK	1.0

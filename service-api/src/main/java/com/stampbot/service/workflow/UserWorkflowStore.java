@@ -54,4 +54,8 @@ public class UserWorkflowStore {
 	public UserWorkflowLogEntity findQuestionWithNextQuestionId(Long aLong, Long id) {
 		return repository.findQuestionWithNextQuestionId(aLong, id);
 	}
+
+	public UserWorkflowMasterEntity findMasterWorkflowEntityById(Long masterWorkflowId) {
+		return masterRepository.findOne(masterWorkflowId);
+	}
 }

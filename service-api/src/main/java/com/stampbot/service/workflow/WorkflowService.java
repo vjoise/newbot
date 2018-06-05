@@ -1,6 +1,7 @@
 package com.stampbot.service.workflow;
 
 import com.google.common.collect.Maps;
+import com.stampbot.domain.UserIdMention;
 import com.stampbot.domain.UserInput;
 import com.stampbot.entity.*;
 import com.stampbot.repository.WorkflowQuestionRepository;
@@ -17,6 +18,7 @@ import org.symphonyoss.client.events.SymEvent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.stampbot.common.Utils.trySafe;
 
@@ -103,7 +105,7 @@ public class WorkflowService {
 				entity.setQuestionId(question.getId());
 				entity.setUserId(userInput.getUserId());
 				entity.setWorkflowId(question.getWorkflowEntity().getId());
-				entity.setUserMentionIdsList(StringUtils.join(userInput.getUserIdMentions(), ","));
+				entity.setUserMentionIdsList(StringUtils.join(userInput.getUserIdMentions().stream().map(UserIdMention::getUserId).collect(Collectors.toList()), ","));
 				entity.setWorkflowMaster(finalUserWorkflowMasterEntity);
 				logEntities.add(entity);
 			} else {

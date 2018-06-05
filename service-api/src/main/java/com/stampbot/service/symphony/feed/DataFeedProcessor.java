@@ -3,8 +3,8 @@ package com.stampbot.service.symphony.feed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.stampbot.config.StampBotConfig;
+import com.stampbot.domain.UserIdMention;
 import com.stampbot.domain.UserInput;
-import com.stampbot.domain.UserInputWord;
 import com.stampbot.domain.UserIntent;
 import com.stampbot.entity.UserBotConversationLog;
 import com.stampbot.entity.UserWorkflowLogEntity;
@@ -19,6 +19,7 @@ import com.stampbot.service.symphony.service.SymphonyService;
 import com.stampbot.service.workflow.UserWorkflowStore;
 import com.stampbot.service.workflow.WorkflowService;
 import com.stampbot.service.workflow.handler.WorkflowQuestionValidator;
+import com.stampbot.util.UserUtil;
 import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,10 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.stampbot.common.Utils.trySafe;
 
@@ -61,8 +65,6 @@ public class DataFeedProcessor {
 
 	@Autowired
 	private SymphonyService symphonyService;
-
-	private Map<String, UserIntent> userIntentMap = Maps.newHashMap();
 
 	@Autowired
 	private UserBotConversationRepository userBotConversationRepository;
@@ -108,7 +110,10 @@ public class DataFeedProcessor {
 				return;
 			}
 			SymMessage messageSent = symEvent.getPayload().getMessageSent();
-			List<Long> mentionedUserIds = Lists.newArrayList();
+			List<UserIdMention> mentionedUserIds = Lists.newArrayList();
+
+			UserUtil.addUser(symEvent.getInitiator());
+
 			if (StringUtils.isNotBlank(messageSent.getEntityData())) {
 				checkAndPopulateUserMentions(messageSent, mentionedUserIds);
 			}
@@ -120,12 +125,12 @@ public class DataFeedProcessor {
 			userInput.setUserIdMentions(mentionedUserIds);
 			userInput.setUserId(symEvent.getInitiator().getId());
 			userInput.setConversationId(messageSent.getStreamId());
+
 			boolean noPendingAnswersFromThisUser = userWorkflowStore.isEmpty(userInput);
 			final String[] botResponse = {""};
 			boolean nothingOtherThanGreeting = userInput.getWords()
 					.stream()
-					.filter(word -> StringUtils.isNotBlank(word.getEntity()))
-					.filter(word -> !word.getEntity().equalsIgnoreCase("GREETING"))
+					.filter(word -> StringUtils.isBlank(word.getEntity()) || !word.getEntity().equalsIgnoreCase("GREETING"))
 					.count() == 0;
 			if (nothingOtherThanGreeting) {
 				trySafe(() -> {
@@ -166,6 +171,10 @@ public class DataFeedProcessor {
 						classifierResponse.setMessage(unansweredQuestion.getWorkflowEntity().getName());
 						classifierResponse.setResponseType(ClassifierResponseType.WORKFLOW);
 						processUserInput(symEvent, classifierResponse, userInput, botResponse);
+						boolean workflowEnded = userWorkflowStore.isEmpty(userInput);
+						if (workflowEnded) {
+							UserUtil.putIntent(userInput.getUserId(), null);
+						}
 					} else {
 						if (userIntent.getNumberOfWrongInputs() >= Integer.parseInt(config.getMaxAllowedWrongInputs())) {
 							trySafe(() -> {
@@ -185,17 +194,19 @@ public class DataFeedProcessor {
 		});
 	}
 
-	private void checkAndPopulateUserMentions(SymMessage messageSent, List<Long> mentionedUserIds) {
+	private void checkAndPopulateUserMentions(SymMessage messageSent, List<UserIdMention> mentionedUserIds) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			Map map = mapper.readValue(messageSent.getEntityData(), Map.class);
 			map.forEach((key, value) -> {
 				Map internal = (Map) value;
 				Iterator iterator = ((Map) ((List) ((Map.Entry) internal.entrySet().iterator().next()).getValue()).get(0)).entrySet().iterator();
+				UserIdMention userIdMention = new UserIdMention();
 				iterator.next();
-				Object next1 = iterator.next();
-				mentionedUserIds.add((Long) ((Map.Entry) next1).getValue());
-				System.out.println("User Mentions :: user ID :: " + ((Map.Entry) next1).getValue());
+				userIdMention.setUserId((Long) ((Map.Entry) iterator.next()).getValue());
+				userIdMention.setName(UserUtil.getUser(userIdMention.getUserId()).getDisplayName());
+				mentionedUserIds.add(userIdMention);
+				System.out.println("User Mentions :: user ID :: " + userIdMention);
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -244,11 +255,12 @@ public class DataFeedProcessor {
 	}
 
 	private UserIntent extractUserIntent(SymEvent symEvent) {
-		UserIntent userIntent = userIntentMap.get(symEvent.getInitiator().getEmailAddress());
+		UserIntent userIntent = UserUtil.getIntent(symEvent.getInitiator().getId());
 		if (userIntent == null) {
 			userIntent = new UserIntent();
 		}
 		userIntent.addInput(new UserInput(symEvent.getPayload().getMessageSent().getMessageText()));
+		UserUtil.putIntent(symEvent.getInitiator().getId(), userIntent);
 		return userIntent;
 	}
 

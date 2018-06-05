@@ -3,8 +3,10 @@ package com.stampbot.service.task;
 import com.stampbot.dao.JiraTaskDao;
 import com.stampbot.model.SprintsResponse;
 import com.stampbot.model.boardModel.BoardsResponse;
+import com.stampbot.model.editMetaModel.EditMeta;
 import com.stampbot.model.issueModel.IssueResponse;
 import com.stampbot.model.issueModel.Version;
+import com.stampbot.model.transitionModel.TransitionFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +53,25 @@ public class TaskService {
 
     public List<IssueResponse> getIssuesForSprintName(String sprintName) {
         return jiraTaskDao.getIssuesForSprintName(sprintName);
+    }
+
+    public EditMeta getEditMeta(String issueIdOrKey) {
+        return jiraTaskDao.getEditMeta(issueIdOrKey);
+    }
+
+    public TransitionFields getTransitionFields(String issueIdOrKey) {
+        return jiraTaskDao.getTransitionFields(issueIdOrKey);
+    }
+
+    public String completeTesting(String issueKey) {
+        return jiraTaskDao.completeTesting(issueKey);
+    }
+
+    public String completeTesting(String issueKey, String newStatus, String newComment, boolean assignToReporter) {
+        return jiraTaskDao.completeTesting(issueKey, newStatus, newComment, assignToReporter);
+    }
+
+    public String editIssue(String issueKey, String newComment, boolean assignToReporter) {
+        return jiraTaskDao.editIssue(issueKey, newComment, assignToReporter);
     }
 }

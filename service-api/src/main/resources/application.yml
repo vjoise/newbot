@@ -45,11 +45,15 @@ jira:
     authorizationUrl: ${jira.url.home}/plugins/servlet/oauth/authorize
     createMeta: ${jira.url.home}/rest/api/2/issue/createmeta
     createIssue: ${jira.url.home}/rest/api/2/issue
+    editMeta: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}/editmeta
+    updateIssue: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}
     getIssue: ${jira.url.home}/rest/api/latest/issue/
     getVersions: ${jira.url.home}/rest/api/2/project/{projectId}/versions
     getBoards: ${jira.url.home}/rest/agile/1.0/board
     getSprints: ${jira.url.home}/rest/agile/1.0/board/{boardId}/sprint
     getIssuesForSprint: ${jira.url.home}/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue
+    getTransitionFields: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}/transitions?expand=transitions.fields
+    doTransition: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}/transitions
   project:
     key: "AUD"
     id: "10000"

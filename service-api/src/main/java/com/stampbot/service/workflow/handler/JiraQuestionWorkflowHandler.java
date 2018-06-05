@@ -111,6 +111,7 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 		});
 		UserInput tempInput = intent.getUserInputList().get(0);
 		createSubTask(symEvent, tempInput);
+		context.put("workflowEnded", true);
 	}
 
 	private void sendErrorToUser(SymEvent symEvent, List<String> strings) {

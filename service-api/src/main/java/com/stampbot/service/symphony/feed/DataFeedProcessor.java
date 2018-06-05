@@ -8,6 +8,7 @@ import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserIntent;
 import com.stampbot.entity.UserBotConversationLog;
 import com.stampbot.entity.UserWorkflowLogEntity;
+import com.stampbot.entity.UserWorkflowMasterEntity;
 import com.stampbot.entity.WorkflowQuestionEntity;
 import com.stampbot.repository.UserBotConversationRepository;
 import com.stampbot.repository.WorkflowQuestionRepository;
@@ -33,6 +34,7 @@ import org.symphonyoss.symphony.clients.DataFeedClient;
 import org.symphonyoss.symphony.clients.model.ApiVersion;
 import org.symphonyoss.symphony.clients.model.SymDatafeed;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -116,6 +118,13 @@ public class DataFeedProcessor {
 
 			if (StringUtils.isNotBlank(messageSent.getEntityData())) {
 				checkAndPopulateUserMentions(messageSent, mentionedUserIds);
+				if (mentionedUserIds.stream().anyMatch(userIdMention -> userIdMention.getUserId().equals(symEvent.getInitiator().getId()))) {
+					trySafe(() -> {
+						symphonyService.sendMessage(symEvent, "Well, looks like you have mentioned your own name, " +
+								"please avoid for disambiguation reasons!");
+					}, true);
+					return;
+				}
 			}
 			String messageText = messageSent.getMessageText();
 			log.info("Message from user  :: " + messageText);
@@ -204,7 +213,12 @@ public class DataFeedProcessor {
 				UserIdMention userIdMention = new UserIdMention();
 				iterator.next();
 				userIdMention.setUserId((Long) ((Map.Entry) iterator.next()).getValue());
-				userIdMention.setName(UserUtil.getUser(userIdMention.getUserId()).getDisplayName());
+				trySafe(() -> {
+					SymUser userFromId = symphonyClient.getUsersClient().getUserFromId(userIdMention.getUserId());
+					userIdMention.setName(userFromId.getDisplayName());
+					UserUtil.addUser(userFromId);
+				}, false);
+				//userIdMention.setName(UserUtil.getUser(userIdMention.getUserId()).getDisplayName());
 				mentionedUserIds.add(userIdMention);
 				System.out.println("User Mentions :: user ID :: " + userIdMention);
 			});
@@ -237,6 +251,14 @@ public class DataFeedProcessor {
 		workflowContext.put("userInput", userInput);
 		workflowContext.put("symEvent", symEvent);
 		workflowService.process(workflowContext);
+		Object workflowEnded = workflowContext.get("workflowEnded");
+		if(workflowEnded!=null && (boolean)workflowEnded){
+			UserWorkflowMasterEntity masterWorkflowEntity = userWorkflowStore.findMasterWorkflowEntity(userInput.getUserId(), userInput.getConversationId());
+			masterWorkflowEntity.getUserWorkflowLogEntities().forEach(entity -> entity.setStatus("INACTIVE"));
+			masterWorkflowEntity.setStatus("INACTIVE");
+			userWorkflowStore.save(masterWorkflowEntity);
+		}
+
 		return workflowContext;
 	}
 

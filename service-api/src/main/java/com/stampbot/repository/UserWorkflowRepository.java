@@ -14,7 +14,7 @@ public interface UserWorkflowRepository extends CrudRepository<UserWorkflowLogEn
 	@Query("select count(1) = 0 from UserWorkflowLogEntity log where log.userId = :userId and log.conversationId = :conversationId and log.passed = false")
 	boolean isEmpty(@Param("userId") Long userId, @Param("conversationId") String conversationId);
 
-	@Query("select log from UserWorkflowLogEntity log where log.passed = false and log.conversationId = :conversationId")
+	@Query("select log from UserWorkflowLogEntity log where log.passed = false and log.conversationId = :conversationId and status = 'ACTIVE'")
 	UserWorkflowLogEntity getUnansweredQuestion(@Param("conversationId") String conversationId);
 
 	@Query("select log from UserWorkflowLogEntity log where log.status = 'ACTIVE' and log.conversationId = :conversationId")
@@ -26,7 +26,8 @@ public interface UserWorkflowRepository extends CrudRepository<UserWorkflowLogEn
 
 	@Query("select log from UserWorkflowLogEntity log, " +
 								"WorkflowQuestionEntity question left join question.workflowEntity " +
-			" where log.questionId = question.id and question.id = :questionId " +
-			" and log.workflowId = question.workflowEntity.id and log.workflowId = :workflowId")
+			" where log.questionId = question.nextQuestion.id and question.nextQuestion.id = :questionId " +
+			" and log.workflowId = question.workflowEntity.id " +
+			" and log.workflowId = :workflowId and log.status = 'ACTIVE'")
 	UserWorkflowLogEntity findQuestionWithNextQuestionId(@Param("questionId") Long questionId, @Param("workflowId") Long workflowId);
 }

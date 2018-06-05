@@ -8,6 +8,8 @@ import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 
 @Data
@@ -33,9 +35,13 @@ public class UserInput {
 
     private WorkflowQuestionEntity questionEntity;
 
-    private List<Long> userIdMentions;
+    private List<UserIdMention> userIdMentions;
 
     private UserWorkflowMasterEntity workflowMasterEntity;
+
+    private UserInput linkedUserInput;
+
+    private LocalDateTime timeStamp = LocalDateTime.now();
 
     public UserInput() {
 

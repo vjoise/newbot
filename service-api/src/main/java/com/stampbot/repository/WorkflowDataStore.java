@@ -21,10 +21,10 @@ public class WorkflowDataStore {
 
 	public void build() {
 		WorkflowEntity workflowEntity = new WorkflowEntity();
-		workflowEntity.setName("USER_WORKFLOW");
+		workflowEntity.setName("DEV_WORKFLOW");
 		WorkflowQuestionEntity jiraQuestion1 = new WorkflowQuestionEntity();
 		jiraQuestion1.setQuestionKey("JIRA_QUESTION");
-		jiraQuestion1.setQuestionText("You have provided the following, please confirm with Yes or No");
+		jiraQuestion1.setQuestionText("Please confirm with Yes to submit a task or No to decline!");
 		jiraQuestion1.setWorkflowEntity(workflowEntity);
 		WorkflowQuestionEntity jiraQuestion2 = new WorkflowQuestionEntity();
 		jiraQuestion2.setInputValidator(YesNoQuestionValidator.class.getName());
@@ -38,16 +38,15 @@ public class WorkflowDataStore {
 
 	public void buildForDev() {
 		WorkflowEntity workflowEntity = new WorkflowEntity();
-		workflowEntity.setName("DEV_WORKFLOW");
+		workflowEntity.setName("USER_WORKFLOW");
 		WorkflowQuestionEntity devQuestion1 = new WorkflowQuestionEntity();
-		devQuestion1.setQuestionKey("DEV_QUESTION");
-		devQuestion1.setQuestionText("You are a DEVELOPER and have requested for an action, please confirm with Yes or No");
+		devQuestion1.setQuestionKey("JIRA_QUESTION");
+		devQuestion1.setQuestionText("You are a User and have requested for an action, please confirm with Yes or No");
 		devQuestion1.setWorkflowEntity(workflowEntity);
 		WorkflowQuestionEntity devQuestion2 = new WorkflowQuestionEntity();
 		devQuestion2.setActionHandler(DevQuestionWorkflowHandler.class.getName());
 		devQuestion1.setNextQuestion(devQuestion2);
 		workflowEntity.setQuestions(Lists.newArrayList(devQuestion1, devQuestion2));
-
 		workflowService.save(workflowEntity);
 	}
 

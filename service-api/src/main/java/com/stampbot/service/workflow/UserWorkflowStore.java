@@ -7,6 +7,7 @@ import com.stampbot.repository.UserWorkflowRepository;
 import com.stampbot.repository.UserWorkflowMasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -52,6 +53,12 @@ public class UserWorkflowStore {
 	}
 
 	public UserWorkflowLogEntity findQuestionWithNextQuestionId(Long aLong, Long id) {
-		return repository.findQuestionWithNextQuestionId(aLong, id);
+		UserWorkflowLogEntity entity = new UserWorkflowLogEntity();
+		List<UserWorkflowLogEntity> questionWithNextQuestionId = repository.findQuestionWithNextQuestionId(aLong, id);
+		return CollectionUtils.isEmpty(questionWithNextQuestionId) ? null : questionWithNextQuestionId.get(0);
+	}
+
+	public UserWorkflowMasterEntity findMasterWorkflowEntityById(Long masterWorkflowId) {
+		return masterRepository.findOne(masterWorkflowId);
 	}
 }

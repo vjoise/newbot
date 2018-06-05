@@ -16,6 +16,7 @@ import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
 import org.symphonyoss.symphony.clients.StreamsClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -69,6 +70,16 @@ public class SymphonyService {
 		chat.setLastMessage(aMessage);
 		StreamsClient streamsClient = symphonyClient.getStreamsClient();
 		chat.setStream(streamsClient.getStream(symEvent.getInitiator()));
+		symphonyClient.getMessageService().sendMessage(chat, aMessage);
+	}
+
+	public void sendMessage(SymUser user, String messageText) throws StreamsException, MessagesException {
+		Chat chat = new Chat();
+		SymMessage aMessage = new SymMessage();
+		aMessage.setMessageText(messageText);
+		chat.setLastMessage(aMessage);
+		StreamsClient streamsClient = symphonyClient.getStreamsClient();
+		chat.setStream(streamsClient.getStream(user));
 		symphonyClient.getMessageService().sendMessage(chat, aMessage);
 	}
 

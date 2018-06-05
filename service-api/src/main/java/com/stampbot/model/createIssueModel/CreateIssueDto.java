@@ -1,14 +1,13 @@
-package com.stampbot.model;
+package com.stampbot.model.createIssueModel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.stampbot.model.createIssueModel.Update;
 import com.stampbot.model.issueModel.Fields;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateIssueDto{
+public class CreateIssueDto {
 
 	@JsonProperty("update")
 	private Update update;
@@ -19,21 +18,21 @@ public class CreateIssueDto{
 	@JsonProperty("parent")
 	private String parent;
 
-	public void setUpdate(Update update){
-		this.update = update;
-	}
-
-	public Update getUpdate(){
+    public Update getUpdate() {
 		return update;
 	}
 
-	public void setFields(Fields fields){
-		this.fields = fields;
-	}
+    public void setUpdate(Update update) {
+        this.update = update;
+    }
 
-	public Fields getFields(){
+    public Fields getFields() {
 		return fields;
 	}
+
+    public void setFields(Fields fields) {
+        this.fields = fields;
+    }
 
 	public String getParent() {
 		return parent;

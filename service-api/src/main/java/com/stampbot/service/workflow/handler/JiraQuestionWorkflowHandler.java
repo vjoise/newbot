@@ -4,8 +4,7 @@ import com.stampbot.domain.UserInput;
 import com.stampbot.domain.UserInputWord;
 import com.stampbot.entity.ActionItemEntity;
 import com.stampbot.entity.UserWorkflowLogEntity;
-import com.stampbot.entity.WorkflowQuestionEntity;
-import com.stampbot.model.IssueResponse;
+import com.stampbot.model.issueModel.IssueResponse;
 import com.stampbot.repository.WorkflowQuestionRepository;
 import com.stampbot.repository.WorkflowRepository;
 import com.stampbot.service.action.ActionItemService;
@@ -49,15 +48,15 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 	@Autowired
 	private ActionItemService actionItemService;
 
+    private String parentJiraKey;
+
 	@Override
 	public void handle(Map<String, Object> context) {
 		UserInput userInput = UserInput.class.cast(context.get("userInput"));
 		boolean no = userInput.getWords().stream().anyMatch(word -> word.getWord().equalsIgnoreCase("no"));
 		SymEvent symEvent = SymEvent.class.cast(context.get("symEvent"));
 		if (no) {
-			trySafe(() -> {
-				symphonyService.sendMessage(symEvent, "Thank you for using KAKI, have a Productive Day!");
-			}, false);
+            trySafe(() -> symphonyService.sendMessage(symEvent, "Thank you for using KAKI, have a Productive Day!"), false);
 			return;
 		}
 		UserWorkflowLogEntity previousWorkflowLogEntity = userWorkflowStore.findQuestionWithNextQuestionId(userInput.getQuestionEntity().getId()
@@ -77,9 +76,7 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 			sendErrorToUser(symEvent, userInput.getWords().stream().map(UserInputWord::getWord).collect(Collectors.toList()));
 			return;
 		}
-		trySafe(() -> {
-			symphonyService.sendMessage(symEvent, "Please wait, while I create action items for the users you have specified.");
-		}, false);
+        trySafe(() -> symphonyService.sendMessage(symEvent, "Please wait, while I create action items for the users you have specified."), false);
 		List<ActionItemEntity> actionItemEntities = Lists.newArrayList();
 		Arrays.asList(previousWorkflowLogEntity.getUserMentionIdsList().split(",")).forEach(userId -> {
 			log.info("Persisting Workflow Action Items for user..." + userId);
@@ -99,15 +96,13 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 
 	private void sendErrorToUser(SymEvent symEvent, List<String> strings) {
 		log.info("The Jira Id(s) seems to be invalid! :: " + strings);
-		List<String> finalStrings = strings;
-		trySafe(() -> {
-			symphonyService.sendMessage(symEvent, "The Task ID(s) seem to be invalid - "
-					+ finalStrings.toString());
-		}, false);
+        trySafe(() -> symphonyService.sendMessage(symEvent, "The Task ID(s) seem to be invalid - "
+                + strings.toString()), false);
 	}
 
 	private boolean toCreateSubTask(UserInput userInput) {
-		return !startTestingForJira(userInput).equals("");
+        this.parentJiraKey = startTestingForJira(userInput);
+        return !this.parentJiraKey.equals("");
 	}
 
 	private String startTestingForJira(UserInput userInput) {
@@ -127,19 +122,16 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 
 	private void createSubTask(SymEvent symEvent, UserInput userInput) {
 		if (toCreateSubTask(userInput)) {
-			String parentJiraKey = startTestingForJira(userInput);
 			try {
-				IssueResponse issueResponse = taskService.createSubTask(parentJiraKey);
+                IssueResponse issueResponse = taskService.createSubTask(this.parentJiraKey);
 				if (issueResponse != null && issueResponse.getKey() != null) {
-					symphonyService.sendMessage(symEvent, "Testing Sub-Task " + issueResponse.getKey() + " created for " + parentJiraKey + ".");
+                    symphonyService.sendMessage(symEvent, "Testing Sub-Task " + issueResponse.getKey() + " created for " + this.parentJiraKey + ".");
 				} else {
 					throw new Exception("Invalid Response");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				trySafe(() -> {
-					symphonyService.sendMessage(symEvent, "Sub-Task could not be created for " + parentJiraKey + ": " + e.getMessage());
-				}, true);
+                trySafe(() -> symphonyService.sendMessage(symEvent, "Sub-Task could not be created for " + this.parentJiraKey + ": " + e.getMessage()), true);
 			}
 		}
 	}

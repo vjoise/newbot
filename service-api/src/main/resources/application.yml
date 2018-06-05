@@ -47,6 +47,7 @@ jira:
     createIssue: ${jira.url.home}/rest/api/2/issue
     editMeta: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}/editmeta
     updateIssue: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}
+    addComment: ${jira.url.home}/rest/api/2/issue/{issueIdOrKey}/comment
     getIssue: ${jira.url.home}/rest/api/latest/issue/
     getVersions: ${jira.url.home}/rest/api/2/project/{projectId}/versions
     getBoards: ${jira.url.home}/rest/agile/1.0/board

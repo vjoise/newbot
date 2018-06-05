@@ -47,6 +47,12 @@ public class HttpUtils {
         return request.execute();
     }
 
+    public HttpResponse putResponseFromUrl(String url, HttpContent content) throws IOException {
+        HttpRequest request = httpRequestFactory.buildPutRequest(new GenericUrl(url), content);
+        request.getHeaders().setContentType("application/json");
+        return request.execute();
+    }
+
     public HttpResponse getResponseFromUrl(String url) throws IOException {
         HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(url));
         return request.execute();

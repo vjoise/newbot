@@ -10,6 +10,8 @@ import com.stampbot.model.transitionModel.TransitionFields;
 import com.stampbot.service.task.OAuthService;
 import com.stampbot.service.task.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -87,14 +89,20 @@ public class OAuthApi {
         return jiraTaskService.getTransitionFields(issueIdOrKey);
     }
 
-    @GetMapping("/completeTesting/{issueKey}")
-    public String completeTesting(@PathVariable String issueKey) {
+    @PutMapping("/updateStatus/{issueKey}/{newStatus}")
+    public ResponseEntity<String> updateStatus(@PathVariable String issueKey, @PathVariable String newStatus) {
         issueKey = issueKey.replaceAll("%20", " ");
-        return jiraTaskService.completeTesting(issueKey);
+        newStatus = newStatus.replaceAll("%20", " ");
+        String response = jiraTaskService.moveToNewStatus(issueKey, newStatus);
+        if (!response.equals("SUCCESS")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        }
     }
 
     @PostMapping(path = "/completeTesting", consumes = "application/json", produces = "application/json")
-    public String postCompleteTesting(
+    public ResponseEntity<String> postCompleteTesting(
             @RequestBody CompleteTestParams requestJsonObject
     ) {
         String issueKey = requestJsonObject.getIssueKey();
@@ -102,10 +110,15 @@ public class OAuthApi {
         String newComment = requestJsonObject.getComment();
         boolean assignToReporter = requestJsonObject.isAssignToReporter();
 
-        return jiraTaskService.completeTesting(issueKey, newStatus, newComment, assignToReporter);
+        String response = jiraTaskService.completeTesting(issueKey, newStatus, newComment, assignToReporter);
+        if (!response.equals("SUCCESS")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        }
     }
 
-    @PostMapping(path = "/editIssue", consumes = "application/json", produces = "application/json")
+    @PutMapping(path = "/editIssue", consumes = "application/json", produces = "application/json")
     public String editIssue(
             @RequestBody CompleteTestParams requestJsonObject
     ) {
@@ -113,6 +126,11 @@ public class OAuthApi {
         String newComment = requestJsonObject.getComment();
         boolean assignToReporter = requestJsonObject.isAssignToReporter();
 
-        return jiraTaskService.editIssue(issueKey, newComment, assignToReporter);
+        return jiraTaskService.assignTo(issueKey, assignToReporter);
+    }
+
+    @GetMapping("/user/{userId}/issues")
+    public List<IssueResponse> getIssuesAssignedToUser(@PathVariable String userId) {
+        return jiraTaskService.getIssuesAssignedToUser(userId);
     }
 }

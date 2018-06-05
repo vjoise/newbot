@@ -10,6 +10,7 @@ import com.stampbot.model.transitionModel.TransitionFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,15 +64,28 @@ public class TaskService {
         return jiraTaskDao.getTransitionFields(issueIdOrKey);
     }
 
-    public String completeTesting(String issueKey) {
-        return jiraTaskDao.completeTesting(issueKey);
+    public String moveToNewStatus(String issueKey, String newStatus) {
+        try {
+            return jiraTaskDao.moveToNewStatus(issueKey, newStatus, null, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "ERROR";
     }
 
     public String completeTesting(String issueKey, String newStatus, String newComment, boolean assignToReporter) {
         return jiraTaskDao.completeTesting(issueKey, newStatus, newComment, assignToReporter);
     }
 
-    public String editIssue(String issueKey, String newComment, boolean assignToReporter) {
-        return jiraTaskDao.editIssue(issueKey, newComment, assignToReporter);
+    public String addComment(String issueKey, String newComment) {
+        return jiraTaskDao.addComment(issueKey, newComment);
+    }
+
+    public String assignTo(String issueKey, boolean assigneeName) {
+        return jiraTaskDao.assignTo(issueKey, assigneeName);
+    }
+
+    public List<IssueResponse> getIssuesAssignedToUser(String userId) {
+        return jiraTaskDao.getIssuesAssignedToUser(userId);
     }
 }

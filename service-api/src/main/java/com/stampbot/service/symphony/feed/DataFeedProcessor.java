@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.stampbot.config.StampBotConfig;
 import com.stampbot.domain.UserInput;
+import com.stampbot.domain.UserInputWord;
 import com.stampbot.domain.UserIntent;
 import com.stampbot.entity.UserBotConversationLog;
 import com.stampbot.entity.UserWorkflowLogEntity;
@@ -121,6 +122,18 @@ public class DataFeedProcessor {
 			userInput.setConversationId(messageSent.getStreamId());
 			boolean noPendingAnswersFromThisUser = userWorkflowStore.isEmpty(userInput);
 			final String[] botResponse = {""};
+			boolean nothingOtherThanGreeting = userInput.getWords()
+					.stream()
+					.filter(word -> StringUtils.isNotBlank(word.getEntity()))
+					.filter(word -> !word.getEntity().equalsIgnoreCase("GREETING"))
+					.count() == 0;
+			if (nothingOtherThanGreeting) {
+				trySafe(() -> {
+					botResponse[0] = userInput.getInputSentence() + " " + symEvent.getInitiator().getDisplayName();
+					symphonyService.sendMessage(symEvent, botResponse[0]);
+				}, true);
+				return;
+			}
 			if (noPendingAnswersFromThisUser) {
 				if (true) {
 					ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
@@ -176,13 +189,13 @@ public class DataFeedProcessor {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			Map map = mapper.readValue(messageSent.getEntityData(), Map.class);
-			map.forEach((key, value)->{
+			map.forEach((key, value) -> {
 				Map internal = (Map) value;
 				Iterator iterator = ((Map) ((List) ((Map.Entry) internal.entrySet().iterator().next()).getValue()).get(0)).entrySet().iterator();
 				iterator.next();
 				Object next1 = iterator.next();
-				mentionedUserIds.add((Long)((Map.Entry) next1).getValue());
-				System.out.println("User Mentions :: user ID :: "+((Map.Entry) next1).getValue());
+				mentionedUserIds.add((Long) ((Map.Entry) next1).getValue());
+				System.out.println("User Mentions :: user ID :: " + ((Map.Entry) next1).getValue());
 			});
 		} catch (IOException e) {
 			e.printStackTrace();

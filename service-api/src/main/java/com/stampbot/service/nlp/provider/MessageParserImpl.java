@@ -36,7 +36,7 @@ class MessageParserImpl implements MessageParser {
 	private ApplicationContext applicationContext;
 
 	static {
-		properties.setProperty("annotators", "tokenize,ssplit,pos,lemma,depparse,natlog,openie,parse,sentiment");
+		properties.setProperty("annotators", "tokenize,ssplit,pos,lemma,regexner,depparse,natlog,openie,parse,sentiment");
 		properties.put("regexner.mapping", "regexner.txt");
 		pipeline = new StanfordCoreNLP(properties);
 	}

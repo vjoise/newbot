@@ -1,2 +1,3 @@
-JIRA.*	TASK	1.0
-(assign.*|assigned.*)	TASK	1.0
+(work.*|assigned.*)	ASSIGNED	1.0
+(hi.*|hello.*)	GREETING	1.0
+(([a-zA-Z]{1,10})-)*[a-zA-Z]+-\d+	GREETING	1.0

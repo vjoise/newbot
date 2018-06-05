@@ -111,6 +111,12 @@ public class JiraQuestionWorkflowHandler implements WorkflowQuesionHandler {
 		});
 		UserInput tempInput = intent.getUserInputList().get(0);
 		createSubTask(symEvent, tempInput);
+		Arrays.asList(userMentionIdsList.split(",")).forEach(userId -> {
+			trySafe(() -> {
+				symphonyService.sendMessage(UserUtil.getUser(Long.parseLong(userId)), "Please wait, while I create action items on Jira for the user(s) :: "
+						+ userNameMentions);
+			}, false);
+		});
 		context.put("workflowEnded", true);
 	}
 

@@ -93,8 +93,8 @@ public class DataFeedProcessor {
 		dataFeed = dataFeedClient.createDatafeed(ApiVersion.V4);
 		log.info("DataFeedClient ID :: " + dataFeedClient);
 		log.info("Data Feed ID :: " + dataFeed.getId());
-		USER_ROLE_MAP.put("jingyu.li@credit-suisse.com", UserRoleEnum.DEV);
-		USER_ROLE_MAP.put("venkatesh.joisekrishnamurthy@credit-suisse.com", UserRoleEnum.USER);
+		USER_ROLE_MAP.put("jingyu.li@credit-suisse.com", UserRoleEnum.USER);
+		USER_ROLE_MAP.put("venkatesh.joisekrishnamurthy@credit-suisse.com", UserRoleEnum.DEV);
 		USER_WORKFLOW_MAP.put(UserRoleEnum.DEV, "DEV_WORKFLOW");
 		USER_WORKFLOW_MAP.put(UserRoleEnum.USER, "USER_WORKFLOW");
 	}
@@ -150,7 +150,7 @@ public class DataFeedProcessor {
 			}
 			if (noPendingAnswersFromThisUser) {
 				if (true) {
-					ClassifierResponse classifiedResponse = userInputClassifier.classify(messageText);
+					ClassifierResponse classifiedResponse = userInputClassifier.classify(userInput);
 					String userEmailId = symEvent.getInitiator().getEmailAddress();
 					if (userRoleNotMatchingWorkflow(userEmailId, classifiedResponse.getMessage())) {
 						trySafe(() -> {

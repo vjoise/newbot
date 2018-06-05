@@ -21,7 +21,7 @@ public class WorkflowDataStore {
 
 	public void build() {
 		WorkflowEntity workflowEntity = new WorkflowEntity();
-		workflowEntity.setName("USER_WORKFLOW");
+		workflowEntity.setName("DEV_WORKFLOW");
 		WorkflowQuestionEntity jiraQuestion1 = new WorkflowQuestionEntity();
 		jiraQuestion1.setQuestionKey("JIRA_QUESTION");
 		jiraQuestion1.setQuestionText("You have provided the following, please confirm with Yes or No");

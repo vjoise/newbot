@@ -25,9 +25,8 @@ public interface UserWorkflowRepository extends CrudRepository<UserWorkflowLogEn
 	UserWorkflowLogEntity getUnansweredQuestionGivenWorkflow(@Param("workflowName") String workflowName);
 
 	@Query("select log from UserWorkflowLogEntity log, " +
-								"WorkflowQuestionEntity question left join question.workflowEntity " +
-			" where log.questionId = question.nextQuestion.id and question.nextQuestion.id = :questionId " +
-			" and log.workflowId = question.workflowEntity.id " +
-			" and log.workflowId = :workflowId and log.status = 'ACTIVE'")
-	UserWorkflowLogEntity findQuestionWithNextQuestionId(@Param("questionId") Long questionId, @Param("workflowId") Long workflowId);
+			"WorkflowQuestionEntity question left join question.workflowEntity " +
+			" where log.questionId = question.id and question.id = :questionId " +
+			" and log.workflowId = question.workflowEntity.id and log.workflowId = :workflowId")
+	List<UserWorkflowLogEntity> findQuestionWithNextQuestionId(@Param("questionId") Long questionId, @Param("workflowId") Long workflowId);
 }

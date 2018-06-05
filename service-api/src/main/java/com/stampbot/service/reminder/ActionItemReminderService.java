@@ -41,7 +41,8 @@ public class ActionItemReminderService {
 				if (actionPending) {
 					Chat chat = new Chat();
 					SymMessage aMessage = new SymMessage();
-					aMessage.setMessageText("KAKI Reminder :: Please pick-up this action item :: " + entity.getResource());
+					aMessage.setMessageText("KAKI Reminder :: Please start this action item :: " + entity.getResource()
+							+ " <br/> say <span color='red'>yes</span> to start now or any other key to snooze!");
 					chat.setLastMessage(aMessage);
 					StreamsClient streamsClient = symphonyClient.getStreamsClient();
 					UserIdList userIdList = new UserIdList();

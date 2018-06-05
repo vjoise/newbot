@@ -121,8 +121,16 @@ public class WorkflowService {
 			userWorkflowMasterEntity.setUserWorkflowLogEntities(logEntities);
 			userWorkflowMasterEntity.setUserId(userInput.getUserId());
 			userWorkflowMasterEntity.setConversationId(userInput.getConversationId());
+			userWorkflowMasterEntity.setStatus("ACTIVE");
 			userWorkflowStore.save(userWorkflowMasterEntity);
 		} else {
+			long inactiveCount = logEntities.stream().filter(entity -> entity.getStatus().equalsIgnoreCase("INACTIVE")).count();
+			if(logEntities.size() == inactiveCount){
+				//mark the master one as inactive.
+				UserWorkflowMasterEntity masterWorkflowEntity = userWorkflowStore.findMasterWorkflowEntity(userInput.getUserId(), userInput.getConversationId());
+				masterWorkflowEntity.setStatus("INACTIVE");
+				userWorkflowStore.save(masterWorkflowEntity);
+			}
 			userWorkflowStore.save(logEntities);
 		}
 	}

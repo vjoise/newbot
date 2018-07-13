@@ -11,17 +11,18 @@ import org.symphonyoss.client.SymphonyClientFactory;
 import org.symphonyoss.client.events.SymEvent;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.StreamsException;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
 import org.symphonyoss.symphony.clients.StreamsClient;
+import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 
@@ -80,6 +81,17 @@ public class SymphonyService {
 		chat.setLastMessage(aMessage);
 		StreamsClient streamsClient = symphonyClient.getStreamsClient();
 		chat.setStream(streamsClient.getStream(user));
+		symphonyClient.getMessageService().sendMessage(chat, aMessage);
+	}
+
+	public void sendMessage(Long userId, String messageText) throws StreamsException, MessagesException, UsersClientException {
+		Chat chat = new Chat();
+		SymMessage aMessage = new SymMessage();
+		aMessage.setMessageText(messageText);
+		chat.setLastMessage(aMessage);
+		StreamsClient streamsClient = symphonyClient.getStreamsClient();
+		UsersClient usersClient = symphonyClient.getUsersClient();
+		chat.setStream(streamsClient.getStream(usersClient.getUserFromId(userId)));
 		symphonyClient.getMessageService().sendMessage(chat, aMessage);
 	}
 

@@ -1,0 +1,7 @@
+Hi All,
+The below items are ready for testing.
+JIRA-1234
+JIRA-345
+
+Thanks,
+StampBot Team

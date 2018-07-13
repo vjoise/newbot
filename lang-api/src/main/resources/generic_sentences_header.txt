@@ -1,0 +1,24 @@
+@relation generic_question_test
+
+@attribute sentenceclass     {question,statement,none}
+@attribute NN                   Numeric
+@attribute CD                   Numeric
+@attribute wordCount            Numeric
+@attribute stemmedCount         Numeric
+@attribute NNPS                 Numeric
+@attribute questionMarkCount    Numeric
+@attribute verbCombo            Numeric
+@attribute stemmedEndWithNoun   Numeric
+@attribute startTuple0          Numeric
+@attribute VBZ                  Numeric
+@attribute PRP                  Numeric
+@attribute endTuple0            Numeric
+@attribute NNP                  Numeric
+@attribute NNS                  Numeric
+@attribute verbBeforeNoun       Numeric
+@attribute VBG                  Numeric
+@attribute qTripleScore         Numeric
+@attribute sTripleScore         Numeric
+
+@data
+

@@ -11,6 +11,8 @@ public class UserInputWord {
 
     private String pos;
 
+    private String lemma;
+
     public UserInputWord(String word, String pos, String ne) {
         this.word = word;
         this.pos = pos;

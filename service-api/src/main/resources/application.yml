@@ -5,6 +5,12 @@ logging:
   level:
     org.springframework.web : DEBUG
 spring:
+  data:
+      neo4j:
+        username: neo4j
+        password: secret
+        uri: jdbc:neo4j:http://localhost/test
+        driver: org.neo4j.jdbc.http.HttpDriver
   hibernate:
     jpa:
       ddl-auto : create

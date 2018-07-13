@@ -1,15 +1,15 @@
 package com.stampbot.domain;
 
-import com.stampbot.entity.UserWorkflowMasterEntity;
-import com.stampbot.entity.WorkflowQuestionEntity;
+import com.google.common.collect.Lists;
+import com.stampbot.workflow.entity.UserWorkflowMasterEntity;
+import com.stampbot.workflow.entity.WorkflowQuestionEntity;
+import com.stampbot.lang.domain.SentenceRelation;
 import edu.stanford.nlp.ie.util.RelationTriple;
-import jersey.repackaged.com.google.common.collect.Lists;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.List;
 
 @Data
@@ -43,7 +43,9 @@ public class UserInput {
 
     private LocalDateTime timeStamp = LocalDateTime.now();
 
-    public UserInput() {
+	private SentenceRelation sentenceRelation;
+
+	public UserInput() {
 
     }
 
@@ -53,6 +55,12 @@ public class UserInput {
 
     public void addWord(UserInputWord userInputWord) {
         this.words.add(userInputWord);
+    }
+
+    private List<String> ngramTokensList = Lists.newArrayList();
+
+    public void addToNGramTokensList(String s) {
+        ngramTokensList.add(s);
     }
 
 }

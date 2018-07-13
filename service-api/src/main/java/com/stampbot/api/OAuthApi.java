@@ -1,14 +1,14 @@
 package com.stampbot.api;
 
-import com.stampbot.model.CompleteTestParams;
-import com.stampbot.model.SprintsResponse;
-import com.stampbot.model.boardModel.BoardsResponse;
-import com.stampbot.model.editMetaModel.EditMeta;
-import com.stampbot.model.issueModel.IssueResponse;
-import com.stampbot.model.issueModel.Version;
-import com.stampbot.model.transitionModel.TransitionFields;
-import com.stampbot.service.task.OAuthService;
-import com.stampbot.service.task.TaskService;
+import com.stampbot.workflow.model.CompleteTestParams;
+import com.stampbot.workflow.model.boardModel.BoardsResponse;
+import com.stampbot.workflow.model.editMetaModel.EditMeta;
+import com.stampbot.workflow.model.issueModel.IssueResponse;
+import com.stampbot.workflow.model.issueModel.SprintsResponse;
+import com.stampbot.workflow.model.issueModel.Version;
+import com.stampbot.workflow.model.transitionModel.TransitionFields;
+import com.stampbot.workflow.service.task.JiraTaskService;
+import com.stampbot.workflow.service.task.OAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class OAuthApi {
     @Autowired
     OAuthService oAuthService;
     @Autowired
-    TaskService jiraTaskService;
+    JiraTaskService jiraJiraTaskService;
 
     @GetMapping("/getRequestToken")
     public String getRequestToken() {
@@ -37,63 +37,63 @@ public class OAuthApi {
     @GetMapping(value = "/createSubTask/{jiraIssueKey}", produces = "application/json; charset=UTF-8")
     public IssueResponse createSubTask(@PathVariable String jiraIssueKey) {
         jiraIssueKey = jiraIssueKey.replaceAll("%20", " ");
-        return jiraTaskService.createSubTask(jiraIssueKey);
+        return jiraJiraTaskService.createSubTask(jiraIssueKey);
     }
 
     @GetMapping("/getProjectVersions")
     public List<Version> getProjectVersions() {
-        return jiraTaskService.getProjectVersions();
+        return jiraJiraTaskService.getProjectVersions();
     }
 
     @GetMapping("/getBoards")
     public BoardsResponse getBoards() {
-        return jiraTaskService.getBoards();
+        return jiraJiraTaskService.getBoards();
     }
 
     @GetMapping("/getBoardId")
     public int getBoardId() {
-        return jiraTaskService.getBoardId();
+        return jiraJiraTaskService.getBoardId();
     }
 
     @GetMapping("/getSprints")
     public SprintsResponse getSprints() {
-        return jiraTaskService.getSprints(getBoardId());
+        return jiraJiraTaskService.getSprints(getBoardId());
     }
 
     @GetMapping("/getActiveSprintId")
     public int getActiveSprintId() {
-        return jiraTaskService.getActiveSprintId();
+        return jiraJiraTaskService.getActiveSprintId();
     }
 
     @GetMapping("/getMatchingNameSprintId/{sprintName}")
     public int getMatchingNameSprintId(@PathVariable String sprintName) {
         sprintName = sprintName.replaceAll("%20", " ");
-        return jiraTaskService.getMatchingNameSprintId(sprintName);
+        return jiraJiraTaskService.getMatchingNameSprintId(sprintName);
     }
 
     @GetMapping("/getIssuesForSprintName/{sprintName}")
     public List<IssueResponse> getIssuesForSprintName(@PathVariable String sprintName) {
         sprintName = sprintName.replaceAll("%20", " ");
-        return jiraTaskService.getIssuesForSprintName(sprintName);
+        return jiraJiraTaskService.getIssuesForSprintName(sprintName);
     }
 
     @GetMapping("/editMeta/{issueIdOrKey}")
     public EditMeta getEditMeta(@PathVariable String issueIdOrKey) {
         issueIdOrKey = issueIdOrKey.replaceAll("%20", " ");
-        return jiraTaskService.getEditMeta(issueIdOrKey);
+        return jiraJiraTaskService.getEditMeta(issueIdOrKey);
     }
 
     @GetMapping("/getTransitionFields/{issueIdOrKey}")
     public TransitionFields getTransitionFields(@PathVariable String issueIdOrKey) {
         issueIdOrKey = issueIdOrKey.replaceAll("%20", " ");
-        return jiraTaskService.getTransitionFields(issueIdOrKey);
+        return jiraJiraTaskService.getTransitionFields(issueIdOrKey);
     }
 
     @PutMapping("/updateStatus/{issueKey}/{newStatus}")
     public ResponseEntity<String> updateStatus(@PathVariable String issueKey, @PathVariable String newStatus) {
         issueKey = issueKey.replaceAll("%20", " ");
         newStatus = newStatus.replaceAll("%20", " ");
-        String response = jiraTaskService.moveToNewStatus(issueKey, newStatus);
+        String response = jiraJiraTaskService.moveToNewStatus(issueKey, newStatus);
         if (!response.equals("SUCCESS")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } else {
@@ -110,7 +110,7 @@ public class OAuthApi {
         String newComment = requestJsonObject.getComment();
         boolean assignToReporter = requestJsonObject.isAssignToReporter();
 
-        String response = jiraTaskService.completeTesting(issueKey, newStatus, newComment, assignToReporter);
+        String response = jiraJiraTaskService.completeTesting(issueKey, newStatus, newComment, assignToReporter);
         if (!response.equals("SUCCESS")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } else {
@@ -126,11 +126,11 @@ public class OAuthApi {
         String newComment = requestJsonObject.getComment();
         boolean assignToReporter = requestJsonObject.isAssignToReporter();
 
-        return jiraTaskService.assignTo(issueKey, assignToReporter);
+        return jiraJiraTaskService.assignTo(issueKey, assignToReporter);
     }
 
     @GetMapping("/user/{userId}/issues")
     public List<IssueResponse> getIssuesAssignedToUser(@PathVariable String userId) {
-        return jiraTaskService.getIssuesAssignedToUser(userId);
+        return jiraJiraTaskService.getIssuesAssignedToUser(userId);
     }
 }

@@ -1,0 +1,28 @@
+1 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  Good morning, how are you?
+2 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   I am doing well, how about you?
+1 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  I'm also good.
+2 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   That's good to hear.
+3 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  Yes it is
+4 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   Hello
+5 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  Hi
+6 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   How are you doing?
+7 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  I am doing well
+8 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   That is good to hear
+9 +++$+++ u0 +++$+++ m3 +++$+++ USER +++$+++  Indeed!
+10 +++$+++ u1 +++$+++ m3 +++$+++ BOT +++$+++  Can I help you with anything?
+11 +++$+++ u0 +++$+++ m3 +++$+++ USER +++$+++ Yes, I have a question
+12 +++$+++ u1 +++$+++ m3 +++$+++ BOT +++$+++  What is your question?
+13 +++$+++ u0 +++$+++ m3 +++$+++ USER +++$+++ Do you want to know more about jira status?
+14 +++$+++ u1 +++$+++ m3 +++$+++ BOT +++$+++  I'm sorry, but I don't have any info on that one.
+15 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  How are you doing?
+16 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   I am doing well, how about you?
+17 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  I am also good.
+18 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   That's good
+19 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  Yes it is
+20 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   Have you heard the news?
+21 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  good news?
+22 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   favorite book?
+23 +++$+++ u0 +++$+++ m0 +++$+++ USER +++$+++  I can't read.
+24 +++$+++ u1 +++$+++ m0 +++$+++ BOT +++$+++   favorite color?
+25 +++$+++ u0 +++$+++ m3 +++$+++ USER +++$+++  Blue
+26 +++$+++ u1 +++$+++ m3 +++$+++ BOT +++$+++   Who are you?

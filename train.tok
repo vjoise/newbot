@@ -1,0 +1,17 @@
+Hi  O
+All O
+,   O
+The O
+below   O
+items   O
+are O
+ready   B-TASK
+for O   I-TASK
+testing I-TASK
+.   O
+JIRA-1234   TASK_ID
+JIRA-345    TASK_ID
+Thanks  GRATITUDE
+,   O
+StampBot    O
+Team    O

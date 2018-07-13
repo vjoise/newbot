@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <link rel="shortcut icon" href="/favicon.ico"/>
-    <link rel="stylesheet" href="//demo.productionready.io/main.css"/>
+    <link rel="shortcut icon" th:href="@{img/favicon2.png}"/>
+    <link rel="stylesheet" href="http://demo.productionready.io/main.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
-    <link href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
-    <link href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic"
-          rel="stylesheet"/>
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{css/toastr.css}"/>
+          
     <title>Example App</title>
-    <link href="/static/css/main.faa3584a.css" rel="stylesheet"/>
+    <link th:href="@{/css/main.faa3584a.css}" rel="stylesheet"/>
 </head>
 <body>
 <div id="root">test home page is up</div>
-<script type="text/javascript" src="/static/js/main.7d5c3ca0.js"></script>
+
+<script type="text/javascript" th:src="@{/js/main.76f40436.js}"></script>
+<script id="lzutf8" src="https://cdn.jsdelivr.net/npm/lzutf8/build/production/lzutf8.min.js"></script>
+<script id="jquery" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script id="toastr" src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </body>
 </html>

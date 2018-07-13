@@ -1,0 +1,34 @@
+@relation workflow_test
+
+@attribute spamclass {user_workflow,dev_workflow,none}
+@attribute text String
+
+@data
+user_workflow,'i will be working on this JIRA'
+user_workflow,'is the environment down?'
+dev_workflow,'please test jira-123 and let us know.'
+dev_workflow,'Hi @User, Please test this Jira-1234 and let me know if it is working fine.'
+dev_workflow,'The fix for Jira-1234 is deployed, please test it.'
+dev_workflow,'Is this working as expected? JIRA-1234?'
+user_workflow,'I think there is an issue with this JIRA-123'
+rachel_workflow,'What is the price for SYMBOL?'
+rachel_workflow,''
+none,'Im also good.'
+none,'That\'s good to hear.'
+none,'Yes it is'
+none,'Hello'
+none,'Hi'
+none,'How are you doing?'
+none,'I am doing well.'
+none,'That is good to hear'
+none,'Yes it is.'
+none,'Can I help you with anything?'
+none,'Yes, I have a question.'
+none,'What is your question?'
+none,'Could I borrow a cup of sugar?'
+none,'Im sorry, but I dont have any.'
+none,'How are you doing?'
+none,'I am doing well, how about you?'
+none,'I am also good.'
+none,'Thats good'
+none,'Yes it is'

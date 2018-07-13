@@ -1,9 +1,8 @@
 package com.stampbot.domain;
 
-import com.stampbot.entity.WorkflowQuestionEntity;
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
+import com.stampbot.workflow.entity.WorkflowQuestionEntity;
 import lombok.Data;
-import org.apache.lucene.queryparser.xml.builders.UserInputQueryBuilder;
 import org.springframework.context.annotation.Scope;
 
 import java.util.List;
